@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keplerian Guestimator</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root {
+      --bg: #f4f1e8;
+      --panel: #fffaf0;
+      --ink: #1f1d18;
+      --muted: #5b5548;
+      --accent: #2f6d5b;
+      --accent-2: #b96535;
+      --line: #d8cfbc;
+      --hz-opt: rgba(72, 153, 108, 0.16);
+      --hz-cons: rgba(72, 153, 108, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 15%, #efe4ca 0%, transparent 45%),
+        radial-gradient(circle at 85% 10%, #d9ebe2 0%, transparent 40%),
+        linear-gradient(160deg, #f6f2e8 0%, #eee6d3 100%);
+      font-family: "Avenir Next", "Helvetica Neue", Helvetica, sans-serif;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 1.5rem + 1.8vw, 3rem);
+      letter-spacing: 0.01em;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 10px 0 20px;
+      color: var(--muted);
+      max-width: 850px;
+      line-height: 1.45;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      background: color-mix(in srgb, var(--panel) 85%, white);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(43, 39, 30, 0.08);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.mass-unit {
+      grid-column: span 2;
+    }
+
+    .field.period-range {
+      grid-column: span 3;
+    }
+
+    .inline-periods {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .inline-period {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .choice-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #mplanetUnitGroup {
+      flex-wrap: nowrap;
+    }
+
+    .choice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #fffdf8;
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .choice input {
+      width: auto;
+      margin: 0;
+      padding: 0;
+      border: none;
+      accent-color: var(--accent);
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 1rem;
+      background: #fffdf8;
+      color: var(--ink);
+    }
+
+    input[type="number"] {
+      width: 10ch;
+      max-width: 100%;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: #fffdf8;
+      color: var(--ink);
+    }
+
+    .actions {
+      grid-column: span 4;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .samples {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 0 0 12px;
+    }
+
+    .samples-title {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .sample-btn {
+      background: #e8f2ed;
+      color: #1c4a3d;
+      border: 1px solid #b9d3c8;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .sample-btn:hover {
+      filter: brightness(1.03);
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      transition: transform 0.1s ease, filter 0.2s ease;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .stats {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--panel) 90%, white);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .card b {
+      display: block;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .detail {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--panel) 92%, white);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .detail h2 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 8px 14px;
+      font-size: 0.94rem;
+    }
+
+    .detail-label {
+      color: var(--muted);
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    .chart {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 253, 247, 0.88);
+      box-shadow: 0 8px 24px rgba(43, 39, 30, 0.07);
+      overflow: hidden;
+      min-height: 360px;
+    }
+
+    #plotK,
+    #plotMass,
+    #plotTeq {
+      height: 430px;
+    }
+
+    .ref {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.45;
+      background: rgba(255, 253, 247, 0.8);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+      }
+
+      .actions {
+        grid-column: span 2;
+      }
+
+      .field.mass-unit {
+        grid-column: span 2;
+      }
+
+      .field.period-range {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        grid-column: span 1;
+      }
+
+      .field.mass-unit {
+        grid-column: span 1;
+      }
+
+      .field.period-range {
+        grid-column: span 1;
+      }
+
+      #mplanetUnitGroup {
+        flex-wrap: wrap;
+      }
+
+      .inline-periods {
+        flex-wrap: wrap;
+      }
+
+      #plotK,
+      #plotMass,
+      #plotTeq {
+        height: 320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Keplerian Guestimator</h1>
+    <p class="subtitle">
+      Precision-RV helper for quick-order detectability and climate context. Enter stellar and planetary masses,
+      then explore stellar reflex semi-amplitude <i>K</i> and equilibrium temperature as functions of orbital period.
+    </p>
+
+    <section class="samples" aria-label="Sample systems">
+      <span class="samples-title">Sample systems</span>
+      <button class="sample-btn" id="sampleProxima" type="button">Proxima b + NIRPS (0.7 m/s)</button>
+      <button class="sample-btn" id="sampleEarth" type="button">Earth + HARPS (0.7 m/s)</button>
+      <button class="sample-btn" id="sampleHD189733" type="button">HD189733 + HARPS (0.7 m/s)</button>
+      <button class="sample-btn" id="sampleLHS1140" type="button">LHS 1140 + SPIRou (3 m/s)</button>
+    </section>
+
+    <section class="grid" aria-label="Inputs">
+      <div class="field">
+        <label for="mstar">Stellar mass (<i>M</i><sub>sun</sub>)</label>
+        <input id="mstar" type="number" step="0.01" min="0.08" max="3.0" value="0.5" />
+        <label>Stellar spectral type</label>
+        <div class="choice-row" id="stellarTypeGroup" role="radiogroup" aria-label="Stellar spectral type">
+          <label class="choice"><input type="radio" name="stellarType" value="custom" checked />Custom</label>
+          <label class="choice"><input type="radio" name="stellarType" value="G2V" />G2V</label>
+          <label class="choice"><input type="radio" name="stellarType" value="K5V" />K5V</label>
+          <label class="choice"><input type="radio" name="stellarType" value="M0V" />M0V</label>
+          <label class="choice"><input type="radio" name="stellarType" value="M4V" />M4V</label>
+          <label class="choice"><input type="radio" name="stellarType" value="M8V" />M8V</label>
+        </div>
+      </div>
+
+      <div class="field mass-unit">
+        <label>Planet mass unit</label>
+        <div class="choice-row" id="mplanetUnitGroup" role="radiogroup" aria-label="Planet mass unit">
+          <label class="choice"><input type="radio" name="mplanetUnit" value="earth" checked />Earth</label>
+          <label class="choice"><input type="radio" name="mplanetUnit" value="neptune" />Neptune</label>
+          <label class="choice"><input type="radio" name="mplanetUnit" value="jupiter" />Jupiter</label>
+        </div>
+        <label for="mplanet">Planet mass value</label>
+        <input id="mplanet" type="number" step="0.01" min="0.01" value="0.7" />
+      </div>
+
+      <div class="field">
+        <label for="kinput">pRV precision (m/s)</label>
+        <input id="kinput" type="number" step="0.01" min="0.01" value="1.0" />
+      </div>
+
+      <div class="field">
+        <label for="albedo">Bond albedo <i>A</i></label>
+        <input id="albedo" type="number" step="0.01" min="0" max="0.95" value="0.30" />
+      </div>
+
+      <div class="field">
+        <label for="punit">Period unit</label>
+        <div class="choice-row" id="punitGroup" role="radiogroup" aria-label="Period unit">
+          <label class="choice"><input type="radio" name="punit" value="days" checked />days</label>
+          <label class="choice"><input type="radio" name="punit" value="years" />years</label>
+        </div>
+      </div>
+
+      <div class="field period-range">
+        <label>Period min / target / max</label>
+        <div class="inline-periods">
+          <div class="inline-period">
+            <label for="pmin">Min</label>
+            <input id="pmin" type="number" step="0.01" min="0.001" value="0.3" />
+          </div>
+          <div class="inline-period">
+            <label for="ptarget">Target</label>
+            <input id="ptarget" type="number" step="0.01" min="0.001" value="10" />
+          </div>
+          <div class="inline-period">
+            <label for="pmax">Max</label>
+            <input id="pmax" type="number" step="0.1" min="0.01" value="3000" />
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="updateBtn" type="button">Update Curves</button>
+        <span id="warn" class="note"></span>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Derived Stellar Quantities">
+      <div class="card"><b>Main-sequence luminosity</b><span id="lstarOut">-</span></div>
+      <div class="card"><b>Main-sequence radius</b><span id="rstarOut">-</span></div>
+      <div class="card"><b>Estimated <i>T</i><sub>eff</sub></b><span id="teffOut">-</span></div>
+      <div class="card"><b>Conservative HZ period</b><span id="hzConsOut">-</span></div>
+      <div class="card"><b>Optimistic HZ period</b><span id="hzOptOut">-</span></div>
+    </section>
+
+    <section class="detail" aria-label="Detailed target-period printout">
+      <h2>Detailed printout at target period</h2>
+      <div class="detail-grid">
+        <div><span class="detail-label">Target period:</span><span id="targetPeriodOut">-</span></div>
+        <div><span class="detail-label">Semi-major axis:</span><span id="targetAOut">-</span></div>
+        <div><span class="detail-label">RV semi-amplitude K:</span><span id="targetKOut">-</span></div>
+        <div><span class="detail-label">pRV precision:</span><span id="targetPrvOut">-</span></div>
+        <div><span class="detail-label">K / pRV:</span><span id="targetSnrOut">-</span></div>
+        <div><span class="detail-label">Detectability status:</span><span id="targetDetOut">-</span></div>
+        <div><span class="detail-label">Minimum detectable mass:</span><span id="targetMdetOut">-</span></div>
+        <div><span class="detail-label">Input planet mass:</span><span id="targetMinOut">-</span></div>
+        <div><span class="detail-label">Equilibrium temperature:</span><span id="targetTeqOut">-</span></div>
+        <div><span class="detail-label">HZ membership:</span><span id="targetHzOut">-</span></div>
+      </div>
+    </section>
+
+    <section class="chart" id="plotK" aria-label="RV signal plot"></section>
+    <section class="chart" id="plotTeq" aria-label="Temperature plot"></section>
+    <section class="chart" id="plotMass" aria-label="Mass inversion plot"></section>
+
+    <section class="ref">
+      <b>Methods and references</b><br />
+      1) Reflex semi-amplitude assumes circular orbit and sin(i) = 1:
+      <i>K</i> = [(2piG)/<i>P</i>]<sup>1/3</sup> * <i>M</i><sub>p</sub> / (<i>M</i><sub>star</sub> + <i>M</i><sub>p</sub>)<sup>2/3</sup>.<br />
+      2) Main-sequence scaling uses piecewise <i>L</i><sub>star</sub>(<i>M</i><sub>star</sub>) and
+      <i>R</i><sub>star</sub> proportional to <i>M</i><sub>star</sub><sup>0.8</sup> (quick-look approximation).<br />
+      3) Equilibrium temperature uses full redistribution:
+      <i>T</i><sub>eq</sub> = [<i>L</i><sub>star</sub>(1 - <i>A</i>) / (16pi sigma <i>a</i><sup>2</sup>)]<sup>1/4</sup>.<br />
+      4) Habitable-zone limits are from Kopparapu et al. 2013 (ApJ 765, 131) and updated coefficients from Kopparapu et al. 2014 (ApJL 787, L29), converted to period using Kepler's third law.
+      <br />5) Spectral-type to stellar-mass quick-look mapping uses representative dwarf values from Pecaut and Mamajek 2013 (ApJS 208, 9; main-sequence dwarf parameter table, updated online).
+    </section>
+  </main>
+
+  <script>
+    const C = {
+      G: 6.67430e-11,
+      MSUN: 1.98847e30,
+      MEARTH: 5.9722e24,
+      MNEPTUNE_EARTH: 17.147,
+      MJUPITER_EARTH: 317.828,
+      AU: 1.495978707e11,
+      DAY: 86400,
+      YEAR: 365.25,
+      SIGMA: 5.670374419e-8,
+      TSUN: 5772
+    };
+
+    const MASS_UNITS = {
+      earth: { toEarth: 1, label: "Earth" },
+      neptune: { toEarth: C.MNEPTUNE_EARTH, label: "Neptune" },
+      jupiter: { toEarth: C.MJUPITER_EARTH, label: "Jupiter" }
+    };
+
+    const STELLAR_TYPE_MASSES = {
+      G2V: 1.00,
+      K5V: 0.67,
+      M0V: 0.60,
+      M4V: 0.21,
+      M8V: 0.08
+    };
+
+    function logspace(min, max, n) {
+      const out = [];
+      const a = Math.log10(min);
+      const b = Math.log10(max);
+      for (let i = 0; i < n; i += 1) {
+        const t = i / (n - 1);
+        out.push(10 ** (a + t * (b - a)));
+      }
+      return out;
+    }
+
+    function lstarMainSequence(m) {
+      if (m < 0.43) return 0.23 * (m ** 2.3);
+      if (m < 2.0) return m ** 4.0;
+      if (m < 20.0) return 1.4 * (m ** 3.5);
+      return 32000 * m;
+    }
+
+    function rstarMainSequence(m) {
+      if (m < 1.0) return m ** 0.8;
+      return m ** 0.57;
+    }
+
+    function teffFromLR(l, r) {
+      return C.TSUN * ((l / (r * r)) ** 0.25);
+    }
+
+    function periodDaysToAau(periodDays, mstarMsun) {
+      const pyr = periodDays / C.YEAR;
+      return ((mstarMsun * pyr * pyr) ** (1 / 3));
+    }
+
+    function aauToPeriodDays(aau, mstarMsun) {
+      const pyr = Math.sqrt((aau ** 3) / mstarMsun);
+      return pyr * C.YEAR;
+    }
+
+    function kSemiAmplitude(periodDays, mstarMsun, mplanetMearth) {
+      const pSec = periodDays * C.DAY;
+      const mStarKg = mstarMsun * C.MSUN;
+      const mPlanetKg = mplanetMearth * C.MEARTH;
+      const c = ((2 * Math.PI * C.G) / pSec) ** (1 / 3);
+      return c * mPlanetKg / ((mStarKg + mPlanetKg) ** (2 / 3));
+    }
+
+    function invertMassFromK(kTarget, periodDays, mstarMsun) {
+      const pSec = periodDays * C.DAY;
+      const mStarKg = mstarMsun * C.MSUN;
+      const c = ((2 * Math.PI * C.G) / pSec) ** (1 / 3);
+
+      const f = (mp) => c * mp / ((mStarKg + mp) ** (2 / 3)) - kTarget;
+
+      let lo = 0;
+      let hi = mStarKg * 0.2;
+      while (f(hi) < 0) {
+        hi *= 2;
+        if (hi > mStarKg * 100) break;
+      }
+
+      for (let i = 0; i < 70; i += 1) {
+        const mid = 0.5 * (lo + hi);
+        if (f(mid) > 0) hi = mid;
+        else lo = mid;
+      }
+
+      return (0.5 * (lo + hi)) / C.MEARTH;
+    }
+
+    function seffKopparapu(teff, regime) {
+      const t = teff - 5780;
+      const coeff = {
+        recentVenus: [1.776, 1.433e-4, 3.395e-9, -7.636e-12, -1.195e-15],
+        runawayGreenhouse: [1.107, 1.332e-4, 1.58e-8, -8.308e-12, -1.931e-15],
+        maxGreenhouse: [0.356, 6.171e-5, 1.698e-9, -3.198e-12, -5.575e-16],
+        earlyMars: [0.32, 5.547e-5, 1.526e-9, -2.874e-12, -5.011e-16]
+      };
+      const [s0, a, b, c, d] = coeff[regime];
+      return s0 + a * t + b * (t ** 2) + c * (t ** 3) + d * (t ** 4);
+    }
+
+    function hzBoundsPeriods(mstarMsun, lstar, teff) {
+      const sRun = seffKopparapu(teff, "runawayGreenhouse");
+      const sMax = seffKopparapu(teff, "maxGreenhouse");
+      const sVen = seffKopparapu(teff, "recentVenus");
+      const sMar = seffKopparapu(teff, "earlyMars");
+
+      const aRun = Math.sqrt(lstar / sRun);
+      const aMax = Math.sqrt(lstar / sMax);
+      const aVen = Math.sqrt(lstar / sVen);
+      const aMar = Math.sqrt(lstar / sMar);
+
+      return {
+        consInnerP: aauToPeriodDays(aRun, mstarMsun),
+        consOuterP: aauToPeriodDays(aMax, mstarMsun),
+        optInnerP: aauToPeriodDays(aVen, mstarMsun),
+        optOuterP: aauToPeriodDays(aMar, mstarMsun)
+      };
+    }
+
+    function formatRange(minV, maxV, unit, digits = 1) {
+      return `${minV.toFixed(digits)}-${maxV.toFixed(digits)} ${unit}`;
+    }
+
+    function buildLegendPosition(pMin, pMax, pTarget, yValue, yMin, yMax, yIsLog = true) {
+      const xMid = Math.sqrt(pMin * pMax);
+      const putRight = pTarget <= xMid;
+
+      let yRel = 0.5;
+      if (yValue > 0 && yMin > 0 && yMax > yMin) {
+        if (yIsLog) {
+          yRel = (Math.log10(yValue) - Math.log10(yMin)) / (Math.log10(yMax) - Math.log10(yMin));
+        } else {
+          yRel = (yValue - yMin) / (yMax - yMin);
+        }
+      }
+      const putBottom = yRel > 0.58;
+
+      return {
+        orientation: "v",
+        x: putRight ? 0.98 : 0.02,
+        y: putBottom ? 0.02 : 0.98,
+        xanchor: putRight ? "right" : "left",
+        yanchor: putBottom ? "bottom" : "top",
+        bgcolor: "rgba(255,253,247,0.82)",
+        bordercolor: "#d8cfbc",
+        borderwidth: 1
+      };
+    }
+
+    function buildLogTicks(minDays, maxDays, periodUnit) {
+      const vals = [];
+      const start = Math.floor(Math.log10(minDays));
+      const end = Math.ceil(Math.log10(maxDays));
+      for (let e = start; e <= end; e += 1) {
+        const v = 10 ** e;
+        if (v >= minDays && v <= maxDays) vals.push(v);
+      }
+
+      if (vals.length < 3) {
+        const anchors = [1, 2, 5];
+        for (let e = start; e <= end; e += 1) {
+          for (const a of anchors) {
+            const v = a * (10 ** e);
+            if (v >= minDays && v <= maxDays) vals.push(v);
+          }
+        }
+        vals.sort((a, b) => a - b);
+      }
+
+      const tickvals = [...new Set(vals)];
+      const ticktext = tickvals.map((v) => {
+        if (periodUnit === "years") {
+          const y = v / C.YEAR;
+          if (y >= 10) return `${y.toFixed(0)} y`;
+          if (y >= 1) return `${y.toFixed(1)} y`;
+          if (y >= 0.1) return `${y.toFixed(2)} y`;
+          return `${y.toExponential(1)} y`;
+        }
+        if (v >= 100) return `${v.toFixed(0)} d`;
+        if (v >= 10) return `${v.toFixed(1)} d`;
+        return `${v.toFixed(2)} d`;
+      });
+
+      return { tickvals, ticktext };
+    }
+
+    function update() {
+      const warn = document.getElementById("warn");
+      const mStar = Number(document.getElementById("mstar").value);
+      const mPlanetInput = Number(document.getElementById("mplanet").value);
+      const unitKey = document.querySelector("input[name='mplanetUnit']:checked")?.value || "earth";
+      const unit = MASS_UNITS[unitKey] || MASS_UNITS.earth;
+      const kTarget = Number(document.getElementById("kinput").value);
+      const albedo = Number(document.getElementById("albedo").value);
+      const periodUnit = document.querySelector("input[name='punit']:checked")?.value || "days";
+      const pMinEl = document.getElementById("pmin");
+      const pMaxEl = document.getElementById("pmax");
+      const pMinInput = Number(document.getElementById("pmin").value);
+      const pMaxInput = Number(document.getElementById("pmax").value);
+      const pTargetInput = Number(document.getElementById("ptarget").value);
+
+      const mPlanetEarth = mPlanetInput * unit.toEarth;
+      const pMin = periodUnit === "years" ? pMinInput * C.YEAR : pMinInput;
+      const pMax = periodUnit === "years" ? pMaxInput * C.YEAR : pMaxInput;
+      const pTarget = periodUnit === "years" ? pTargetInput * C.YEAR : pTargetInput;
+
+      if (pMin >= pMax) {
+        warn.textContent = "Period range error: Pmin must be strictly smaller than Pmax.";
+        return;
+      }
+
+      if (pTargetInput < pMinInput) {
+        pMinEl.value = (0.5 * pTargetInput).toPrecision(4);
+      }
+      if (pTargetInput > pMaxInput) {
+        pMaxEl.value = (1.5 * pTargetInput).toPrecision(4);
+      }
+
+      const adjPMinInput = Number(pMinEl.value);
+      const adjPMaxInput = Number(pMaxEl.value);
+      const adjPMin = periodUnit === "years" ? adjPMinInput * C.YEAR : adjPMinInput;
+      const adjPMax = periodUnit === "years" ? adjPMaxInput * C.YEAR : adjPMaxInput;
+
+      if (!(mStar > 0 && mPlanetInput > 0 && kTarget > 0 && albedo >= 0 && albedo < 1 && adjPMin > 0 && pTarget > 0)) {
+        return;
+      }
+
+      warn.textContent = "";
+
+      const periods = logspace(adjPMin, adjPMax, 320);
+      const xTicks = buildLogTicks(adjPMin, adjPMax, periodUnit);
+
+      const lStar = lstarMainSequence(mStar);
+      const rStar = rstarMainSequence(mStar);
+      const teff = teffFromLR(lStar, rStar);
+      const hz = hzBoundsPeriods(mStar, lStar, teff);
+
+      const kCurve = periods.map((p) => kSemiAmplitude(p, mStar, mPlanetEarth));
+      const mFromKCurve = periods.map((p) => invertMassFromK(kTarget, p, mStar) / unit.toEarth);
+      const teqCurve = periods.map((p) => {
+        const aAu = periodDaysToAau(p, mStar);
+        return 278.5 * (lStar ** 0.25) * ((1 - albedo) / 0.7) ** 0.25 * (aAu ** -0.5);
+      });
+      const kAtTarget = kSemiAmplitude(pTarget, mStar, mPlanetEarth);
+      const mReqAtTarget = invertMassFromK(kTarget, pTarget, mStar) / unit.toEarth;
+      const aTargetAu = periodDaysToAau(pTarget, mStar);
+      const teqAtTarget = 278.5 * (lStar ** 0.25) * ((1 - albedo) / 0.7) ** 0.25 * (aTargetAu ** -0.5);
+      const targetInRange = pTarget >= adjPMin && pTarget <= adjPMax;
+
+      const kMin = Math.max(Math.min(...kCurve, kTarget) * 0.6, 1e-5);
+      const kMax = Math.max(...kCurve, kTarget) * 1.5;
+      const mMin = Math.max(Math.min(...mFromKCurve, mPlanetInput) * 0.6, 1e-5);
+      const mMax = Math.max(...mFromKCurve, mPlanetInput) * 1.5;
+      const teqMin = Math.min(...teqCurve);
+      const teqMax = Math.max(...teqCurve);
+
+      const legendK = buildLegendPosition(adjPMin, adjPMax, pTarget, kAtTarget, kMin, kMax, true);
+      const legendMass = buildLegendPosition(adjPMin, adjPMax, pTarget, mReqAtTarget, mMin, mMax, true);
+      const legendTeq = buildLegendPosition(adjPMin, adjPMax, pTarget, teqAtTarget, teqMin, teqMax, false);
+
+      const hzShapes = [
+        {
+          type: "rect",
+          xref: "x",
+          yref: "paper",
+          x0: hz.optInnerP,
+          x1: hz.optOuterP,
+          y0: 0,
+          y1: 1,
+          fillcolor: getComputedStyle(document.documentElement).getPropertyValue("--hz-opt"),
+          line: { width: 0 }
+        },
+        {
+          type: "rect",
+          xref: "x",
+          yref: "paper",
+          x0: hz.consInnerP,
+          x1: hz.consOuterP,
+          y0: 0,
+          y1: 1,
+          fillcolor: getComputedStyle(document.documentElement).getPropertyValue("--hz-cons"),
+          line: { width: 0 }
+        }
+      ];
+
+      Plotly.newPlot(
+        "plotK",
+        [
+          {
+            x: periods,
+            y: Array(periods.length).fill(kTarget),
+            mode: "lines",
+            line: { width: 0, color: "rgba(0,0,0,0)" },
+            hoverinfo: "skip",
+            showlegend: false
+          },
+          {
+            x: periods,
+            y: Array(periods.length).fill(kMin),
+            mode: "lines",
+            fill: "tonexty",
+            fillcolor: "rgba(80, 80, 80, 0.05)",
+            fillpattern: {
+              shape: "/",
+              fgcolor: "rgba(80, 80, 80, 0.18)",
+              size: 6,
+              solidity: 0.25
+            },
+            line: { width: 0, color: "rgba(0,0,0,0)" },
+            name: "Undetectable region (K < target)",
+            hoverinfo: "skip"
+          },
+          {
+            x: periods,
+            y: kCurve,
+            mode: "lines",
+            name: `RV semi-amplitude K for input mass (${unit.label})`,
+            line: { width: 3, color: "#2f6d5b" }
+          },
+          {
+            x: periods,
+            y: Array(periods.length).fill(kTarget),
+            mode: "lines",
+            name: `pRV precision = ${kTarget.toFixed(2)} m/s`,
+            line: { width: 1.5, dash: "dot", color: "#7e4e2a" }
+          },
+          {
+            x: targetInRange ? [pTarget] : [],
+            y: targetInRange ? [kAtTarget] : [],
+            mode: "markers",
+            name: "K at target period",
+            marker: { size: 14, color: "#2f6d5b", line: { color: "#ffffff", width: 2 } }
+          },
+          {
+            x: targetInRange ? [pTarget] : [],
+            y: targetInRange ? [kTarget] : [],
+            mode: "markers",
+            name: "pRV at target period",
+            marker: { size: 12, color: "#7e4e2a", line: { color: "#ffffff", width: 2 } }
+          }
+        ],
+        {
+          margin: { l: 70, r: 20, t: 48, b: 58 },
+          title: "RV Semi-Amplitude vs Orbital Period",
+          paper_bgcolor: "rgba(0,0,0,0)",
+          plot_bgcolor: "rgba(0,0,0,0)",
+          xaxis: {
+            title: `Orbital period (${periodUnit})`,
+            type: "log",
+            range: [Math.log10(adjPMin), Math.log10(adjPMax)],
+            tickmode: "array",
+            tickvals: xTicks.tickvals,
+            ticktext: xTicks.ticktext,
+            showgrid: true,
+            gridcolor: "#e7deca"
+          },
+          yaxis: {
+            title: "K (m/s)",
+            type: "log",
+            range: [Math.log10(kMin), Math.log10(kMax)],
+            showgrid: true,
+            gridcolor: "#e7deca"
+          },
+          legend: legendK,
+          shapes: [
+            ...hzShapes,
+            {
+              type: "line",
+              xref: "x",
+              yref: "paper",
+              x0: pTarget,
+              x1: pTarget,
+              y0: 0,
+              y1: 1,
+              line: { color: "#4a4a4a", width: 1.5, dash: "dash" }
+            }
+          ],
+          annotations: [
+            {
+              x: Math.sqrt(hz.consInnerP * hz.consOuterP),
+              y: 1,
+              yref: "paper",
+              text: "Conservative HZ",
+              showarrow: false,
+              yshift: -14,
+              font: { size: 11, color: "#24513f" }
+            }
+          ]
+        },
+        { responsive: true }
+      );
+
+      Plotly.newPlot(
+        "plotMass",
+        [
+          {
+            x: periods,
+            y: mFromKCurve,
+            mode: "lines",
+            name: `Minimum detectable mass for pRV precision (${unit.label})`,
+            line: { width: 3, color: "#b96535" }
+          },
+          {
+            x: periods,
+            y: Array(periods.length).fill(mPlanetInput),
+            mode: "lines",
+            name: `Input planet mass = ${mPlanetInput.toFixed(3)} ${unit.label}`,
+            line: { width: 1.5, dash: "dot", color: "#2f6d5b" }
+          },
+          {
+            x: targetInRange ? [pTarget] : [],
+            y: targetInRange ? [mReqAtTarget] : [],
+            mode: "markers",
+            name: "Minimum detectable mass at target period",
+            marker: { size: 14, color: "#b96535", line: { color: "#ffffff", width: 2 } }
+          },
+          {
+            x: targetInRange ? [pTarget] : [],
+            y: targetInRange ? [mPlanetInput] : [],
+            mode: "markers",
+            name: "Input mass at target period",
+            marker: { size: 12, color: "#2f6d5b", line: { color: "#ffffff", width: 2 } }
+          }
+        ],
+        {
+          margin: { l: 70, r: 20, t: 48, b: 58 },
+          title: "Required Planet Mass vs Orbital Period",
+          paper_bgcolor: "rgba(0,0,0,0)",
+          plot_bgcolor: "rgba(0,0,0,0)",
+          xaxis: {
+            title: `Orbital period (${periodUnit})`,
+            type: "log",
+            range: [Math.log10(adjPMin), Math.log10(adjPMax)],
+            tickmode: "array",
+            tickvals: xTicks.tickvals,
+            ticktext: xTicks.ticktext,
+            showgrid: true,
+            gridcolor: "#e7deca"
+          },
+          yaxis: {
+            title: `Planet mass (&times; ${unit.label})`,
+            type: "log",
+            range: [Math.log10(mMin), Math.log10(mMax)],
+            showgrid: true,
+            gridcolor: "#e7deca"
+          },
+          shapes: [
+            {
+              type: "line",
+              xref: "x",
+              yref: "paper",
+              x0: pTarget,
+              x1: pTarget,
+              y0: 0,
+              y1: 1,
+              line: { color: "#4a4a4a", width: 1.5, dash: "dash" }
+            }
+          ],
+          legend: legendMass
+        },
+        { responsive: true }
+      );
+
+      Plotly.newPlot(
+        "plotTeq",
+        [
+          {
+            x: periods,
+            y: teqCurve,
+            mode: "lines",
+            name: "Equilibrium temperature",
+            line: { width: 3, color: "#1f4f7a" }
+          },
+          {
+            x: targetInRange ? [pTarget] : [],
+            y: targetInRange ? [teqAtTarget] : [],
+            mode: "markers",
+            name: "Teq at target period",
+            marker: { size: 14, color: "#1f4f7a", line: { color: "#ffffff", width: 2 } }
+          }
+        ],
+        {
+          margin: { l: 70, r: 20, t: 48, b: 58 },
+          title: "Equilibrium Temperature vs Orbital Period",
+          paper_bgcolor: "rgba(0,0,0,0)",
+          plot_bgcolor: "rgba(0,0,0,0)",
+          xaxis: {
+            title: `Orbital period (${periodUnit})`,
+            type: "log",
+            range: [Math.log10(adjPMin), Math.log10(adjPMax)],
+            tickmode: "array",
+            tickvals: xTicks.tickvals,
+            ticktext: xTicks.ticktext,
+            showgrid: true,
+            gridcolor: "#e7deca"
+          },
+          yaxis: {
+            title: "Teq (K)",
+            showgrid: true,
+            gridcolor: "#e7deca"
+          },
+          legend: legendTeq,
+          shapes: [
+            ...hzShapes,
+            {
+              type: "line",
+              xref: "x",
+              yref: "paper",
+              x0: pTarget,
+              x1: pTarget,
+              y0: 0,
+              y1: 1,
+              line: { color: "#4a4a4a", width: 1.5, dash: "dash" }
+            }
+          ],
+          annotations: [
+            {
+              x: Math.sqrt(hz.optInnerP * hz.optOuterP),
+              y: Math.max(...teqCurve) * 0.92,
+              text: "Optimistic HZ",
+              showarrow: false,
+              font: { size: 11, color: "#24513f" }
+            }
+          ]
+        },
+        { responsive: true }
+      );
+
+      document.getElementById("lstarOut").textContent = `${lStar.toFixed(3)} Lsun`;
+      document.getElementById("rstarOut").textContent = `${rStar.toFixed(3)} Rsun`;
+      document.getElementById("teffOut").textContent = `${teff.toFixed(0)} K`;
+      document.getElementById("hzConsOut").textContent = formatRange(hz.consInnerP, hz.consOuterP, "days", 1);
+      document.getElementById("hzOptOut").textContent = formatRange(hz.optInnerP, hz.optOuterP, "days", 1);
+
+      const targetPeriodDisplay = periodUnit === "years" ? pTarget / C.YEAR : pTarget;
+      const targetPeriodUnitLabel = periodUnit === "years" ? "y" : "d";
+      const detectable = kAtTarget >= kTarget;
+      let hzMembership = "Outside optimistic HZ";
+      if (pTarget >= hz.consInnerP && pTarget <= hz.consOuterP) {
+        hzMembership = "Inside conservative HZ";
+      } else if (pTarget >= hz.optInnerP && pTarget <= hz.optOuterP) {
+        hzMembership = "Inside optimistic HZ only";
+      }
+
+      document.getElementById("targetPeriodOut").textContent = `${targetPeriodDisplay.toFixed(3)} ${targetPeriodUnitLabel}`;
+      document.getElementById("targetAOut").textContent = `${aTargetAu.toFixed(4)} au`;
+      document.getElementById("targetKOut").textContent = `${kAtTarget.toFixed(2)} m/s`;
+      document.getElementById("targetPrvOut").textContent = `${kTarget.toFixed(2)} m/s`;
+      document.getElementById("targetSnrOut").textContent = `${(kAtTarget / kTarget).toFixed(3)}`;
+      document.getElementById("targetDetOut").textContent = detectable ? "Detectable (K >= pRV)" : "Not detectable (K < pRV)";
+      document.getElementById("targetMdetOut").textContent = `${mReqAtTarget.toFixed(4)} x ${unit.label}`;
+      document.getElementById("targetMinOut").textContent = `${mPlanetInput.toFixed(4)} x ${unit.label}`;
+      document.getElementById("targetTeqOut").textContent = `${teqAtTarget.toFixed(0)} K`;
+      document.getElementById("targetHzOut").textContent = hzMembership;
+
+      if (teff < 2600 || teff > 7200) {
+        warn.textContent = "Warning: Teff is outside nominal Kopparapu calibration range (2600-7200 K).";
+      } else {
+        warn.textContent = "";
+      }
+    }
+
+    document.getElementById("updateBtn").addEventListener("click", update);
+    ["mplanet", "kinput", "albedo", "pmin", "pmax", "ptarget"].forEach((id) => {
+      document.getElementById(id).addEventListener("change", update);
+    });
+    document.getElementById("mstar").addEventListener("change", () => {
+      setRadioValue("stellarType", "custom");
+      update();
+    });
+    document.querySelectorAll("input[name='mplanetUnit']").forEach((radio) => {
+      radio.addEventListener("change", update);
+    });
+    document.querySelectorAll("input[name='stellarType']").forEach((radio) => {
+      radio.addEventListener("change", (ev) => {
+        const spectralType = ev.target.value;
+        if (spectralType !== "custom" && STELLAR_TYPE_MASSES[spectralType] !== undefined) {
+          document.getElementById("mstar").value = STELLAR_TYPE_MASSES[spectralType].toFixed(2);
+        }
+        update();
+      });
+    });
+    document.querySelectorAll("input[name='punit']").forEach((radio) => {
+      radio.addEventListener("change", (ev) => {
+        const nextUnit = ev.target.value;
+        const pminEl = document.getElementById("pmin");
+        const pmaxEl = document.getElementById("pmax");
+        const ptargetEl = document.getElementById("ptarget");
+        const pmin = Number(pminEl.value);
+        const pmax = Number(pmaxEl.value);
+        const ptarget = Number(ptargetEl.value);
+        if (!(pmin > 0 && pmax > 0)) {
+          update();
+          return;
+        }
+
+        if (nextUnit === "years") {
+          pminEl.value = (pmin / C.YEAR).toPrecision(4);
+          pmaxEl.value = (pmax / C.YEAR).toPrecision(4);
+          if (ptarget > 0) ptargetEl.value = (ptarget / C.YEAR).toPrecision(4);
+        } else {
+          pminEl.value = (pmin * C.YEAR).toPrecision(4);
+          pmaxEl.value = (pmax * C.YEAR).toPrecision(4);
+          if (ptarget > 0) ptargetEl.value = (ptarget * C.YEAR).toPrecision(4);
+        }
+        update();
+      });
+    });
+
+    function setRadioValue(name, value) {
+      const el = document.querySelector(`input[name='${name}'][value='${value}']`);
+      if (el) el.checked = true;
+    }
+
+    function applySample(sample) {
+      document.getElementById("mstar").value = sample.mstar;
+      document.getElementById("mplanet").value = sample.mplanet;
+      document.getElementById("kinput").value = sample.kinput;
+      document.getElementById("albedo").value = sample.albedo;
+      document.getElementById("pmin").value = sample.pmin;
+      document.getElementById("pmax").value = sample.pmax;
+      document.getElementById("ptarget").value = sample.ptarget;
+      setRadioValue("stellarType", sample.stellarType || "custom");
+      setRadioValue("mplanetUnit", sample.mplanetUnit);
+      setRadioValue("punit", sample.punit);
+      update();
+    }
+
+    document.getElementById("sampleProxima").addEventListener("click", () => {
+      applySample({
+        mstar: 0.122,
+        mplanet: 1.07,
+        mplanetUnit: "earth",
+        kinput: 0.7,
+        albedo: 0.30,
+        punit: "days",
+        pmin: 0.3,
+        pmax: 3000,
+        ptarget: 11.186,
+        stellarType: "custom"
+      });
+    });
+
+    document.getElementById("sampleEarth").addEventListener("click", () => {
+      applySample({
+        mstar: 1.0,
+        mplanet: 1.0,
+        mplanetUnit: "earth",
+        kinput: 0.7,
+        albedo: 0.30,
+        punit: "days",
+        pmin: 0.3,
+        pmax: 3000,
+        ptarget: 365.25,
+        stellarType: "G2V"
+      });
+    });
+
+    document.getElementById("sampleHD189733").addEventListener("click", () => {
+      applySample({
+        mstar: 0.82,
+        mplanet: 1.138,
+        mplanetUnit: "jupiter",
+        kinput: 0.7,
+        albedo: 0.30,
+        punit: "days",
+        pmin: 0.3,
+        pmax: 3000,
+        ptarget: 2.219,
+        stellarType: "custom"
+      });
+    });
+
+    document.getElementById("sampleLHS1140").addEventListener("click", () => {
+      applySample({
+        mstar: 0.179,
+        mplanet: 5.6,
+        mplanetUnit: "earth",
+        kinput: 3.0,
+        albedo: 0.30,
+        punit: "days",
+        pmin: 0.3,
+        pmax: 3000,
+        ptarget: 24.737,
+        stellarType: "custom"
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      Plotly.Plots.resize(document.getElementById("plotK"));
+      Plotly.Plots.resize(document.getElementById("plotTeq"));
+      Plotly.Plots.resize(document.getElementById("plotMass"));
+    });
+
+    applySample({
+      mstar: 0.122,
+      mplanet: 1.07,
+      mplanetUnit: "earth",
+      kinput: 0.7,
+      albedo: 0.30,
+      punit: "days",
+      pmin: 0.3,
+      pmax: 3000,
+      ptarget: 11.186
+    });
+  </script>
+</body>
+</html>
