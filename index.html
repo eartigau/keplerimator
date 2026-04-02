@@ -383,8 +383,18 @@
       </div>
 
       <div class="field">
-        <label for="kinput">pRV precision (m/s)</label>
+        <label for="kinput">pRV precision / σ<sub>inst</sub> (m/s)</label>
         <input id="kinput" type="number" step="0.01" min="0.01" value="1.0" />
+      </div>
+
+      <div class="field">
+        <label for="sigmaJitter">Stellar jitter σ<sub>jitter</sub> (m/s)</label>
+        <input id="sigmaJitter" type="number" step="0.1" min="0" value="2.0" />
+      </div>
+
+      <div class="field">
+        <label for="massPrecision">Target mass precision (%)</label>
+        <input id="massPrecision" type="number" step="1" min="1" max="100" value="10" />
       </div>
 
       <div class="field">
@@ -442,6 +452,7 @@
         <div><span class="detail-label">K / pRV:</span><span id="targetSnrOut">-</span></div>
         <div><span class="detail-label">Detectability status:</span><span id="targetDetOut">-</span></div>
         <div><span class="detail-label">Minimum detectable mass:</span><span id="targetMdetOut">-</span></div>
+        <div><span class="detail-label">N<sub>RV</sub> for mass at target precision:</span><span id="targetNrvOut">-</span></div>
         <div><span class="detail-label">Input planet mass:</span><span id="targetMinOut">-</span></div>
         <div><span class="detail-label">Equilibrium temperature:</span><span id="targetTeqOut">-</span></div>
         <div><span class="detail-label">Transit depth (ppt):</span><span id="targetTransitDepthOut">-</span></div>
@@ -469,17 +480,17 @@
       <br />6) Transit depth = (<i>R</i><sub>p</sub>/<i>R</i><sub>star</sub>)<sup>2</sup>. Planet radius <i>R</i><sub>p</sub> inferred from mass using piecewise empirical mass-radius relations:
       <br /><table style="margin-top:8px; border-collapse: collapse; font-size: 0.88rem;">
       <tr style="border-bottom: 1px solid #d8cfbc;"><td style="padding: 4px 8px; font-weight: 600;">Mass range</td><td style="padding: 4px 8px; font-weight: 600;">Relation</td><td style="padding: 4px 8px; font-weight: 600;">Reference</td></tr>
-      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">&lt; 0.5 M<sub>⊕</sub></td><td style="padding: 4px 8px;"><i>R</i> = <i>M</i><sup>0.27</sup></td><td style="padding: 4px 8px;">Enoch+2012, Weiss &amp; Marcy 2014</td></tr>
-      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">0.5–1.5 M<sub>⊕</sub></td><td style="padding: 4px 8px;"><i>R</i> = <i>M</i><sup>0.27</sup></td><td style="padding: 4px 8px;">Enoch+2012, Weiss &amp; Marcy 2014</td></tr>
-      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">1.5–10 M<sub>⊕</sub></td><td style="padding: 4px 8px;"><i>R</i> = 1.5 × <i>M</i><sup>0.32</sup></td><td style="padding: 4px 8px;">Weiss &amp; Marcy 2014</td></tr>
-      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">10–100 M<sub>⊕</sub></td><td style="padding: 4px 8px;"><i>R</i> = 1.2 × <i>M</i><sup>0.35</sup></td><td style="padding: 4px 8px;">Weiss &amp; Marcy 2014</td></tr>
-      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">100–4100 M<sub>⊕</sub> (Jovian plateau)</td><td style="padding: 4px 8px;"><i>R</i> ≈ 10.8–11.2 R<sub>⊕</sub></td><td style="padding: 4px 8px;">Jupiter, Saturn empirical</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">&lt; 10 M<sub>⊕</sub> (rocky)</td><td style="padding: 4px 8px;"><i>R</i> = 1.02 × <i>M</i><sup>0.28</sup></td><td style="padding: 4px 8px;">Parc et al. 2024 (A&amp;A 688, A59)</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">10–138 M<sub>⊕</sub> (volatile-rich)</td><td style="padding: 4px 8px;"><i>R</i> = 0.61 × <i>M</i><sup>0.67</sup></td><td style="padding: 4px 8px;">Parc et al. 2024 (A&amp;A 688, A59)</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">138–4100 M<sub>⊕</sub> (giant planets)</td><td style="padding: 4px 8px;"><i>R</i> = 11.9 × <i>M</i><sup>0.01</sup></td><td style="padding: 4px 8px;">Parc et al. 2024 (A&amp;A 688, A59)</td></tr>
       <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">4100–50000 M<sub>⊕</sub> (brown dwarfs)</td><td style="padding: 4px 8px;"><i>R</i> ∝ <i>M</i><sup>0.08</sup> (Baraffe)</td><td style="padding: 4px 8px;">Baraffe et al. model grid</td></tr>
       <tr><td style="padding: 4px 8px;">&gt; 50000 M<sub>⊕</sub> (M dwarfs)</td><td style="padding: 4px 8px;"><i>R</i> = 1.06 × <i>M</i><sup>0.57</sup></td><td style="padding: 4px 8px;">Pecaut &amp; Mamajek 2013</td></tr>
       </table>
       <br />Range reflects ~15% natural scatter in M-R relations across different compositions and stellar activity.
       <br /><br />7) Surface gravity: log(<i>g</i>) = log(<i>GM</i>/<i>R</i><sup>2</sup>).
       <br />8) Atmospheric scale height: <i>H</i> = <i>R</i><sub>specific</sub> × <i>T</i><sub>eq</sub> / <i>g</i>, where <i>R</i><sub>specific</sub> = <i>R</i><sub>gas</sub> / <i>M</i><sub>mol</sub> for H₂ (2 g/mol), N₂ (28 g/mol), and CO₂ (44 g/mol).
+      <br />10) Number of RV observations to measure planet mass at fractional precision <i>p</i> (white noise, Cloutier et al. 2018, AJ 156, 82, eq. 18):
+      <i>N</i><sub>RV</sub> = 2 × (σ<sub>eff</sub> / (<i>p</i> × <i>K</i>))<sup>2</sup>, where σ<sub>eff</sub> = √(σ<sub>inst</sub><sup>2</sup> + σ<sub>jitter</sub><sup>2</sup>).
       <br />9) Atmospheric transmission signal: Total transit depth ≈ geometric depth + (~3 scale heights) × 2<i>H</i>/<i>R</i><sub>p</sub> × (geometric depth), representing additional depth from atmospheric absorption and scattering extending ~3 scale heights above the nominal photosphere.
       
       <br /><br /><b>Understanding atmospheric signals:</b><br />
@@ -523,6 +534,14 @@
       M4V: 0.21,
       M8V: 0.08
     };
+
+    function nRVObservations(K, sigmaInst, sigmaJitter, massPrecisionFrac) {
+      // Cloutier et al. 2018 (AJ 156, 82), eq. 18 — white noise case
+      if (K <= 0 || massPrecisionFrac <= 0) return Infinity;
+      const sigmaTotal = Math.sqrt(sigmaInst * sigmaInst + sigmaJitter * sigmaJitter);
+      const sigmaK = massPrecisionFrac * K;
+      return Math.ceil(2 * Math.pow(sigmaTotal / sigmaK, 2));
+    }
 
     function logspace(min, max, n) {
       const out = [];
@@ -624,22 +643,19 @@
     }
 
     function planetRadiusFromMass(mplanetEarth) {
-      // Mass-radius relation from Enoch et al. (Astrophysics & Space Science Reviews, 22, 4)
-      // and Weiss & Marcy 2014 (ApJL 783, L6)
-      // Extended to brown dwarfs and low-mass stars
-      // Radius in Earth radii, mass in Earth masses
-      if (mplanetEarth < 0.5) {
-        return mplanetEarth ** 0.27; // Low-mass rocky regime
-      } else if (mplanetEarth < 1.5) {
-        return 1.0 * mplanetEarth ** 0.27; // Transition rocky
-      } else if (mplanetEarth < 10) {
-        return 1.5 * mplanetEarth ** 0.32; // Sub-Neptune regime
-      } else if (mplanetEarth < 100) {
-        return 1.2 * mplanetEarth ** 0.35; // Neptune-Jupiter transition
+      // Mass-radius relations from Parc et al. 2024 (A&A 688, A59) for the planetary regime,
+      // extended to brown dwarfs and low-mass stars.
+      // Radius in Earth radii, mass in Earth masses.
+      if (mplanetEarth < 10) {
+        // Rocky planet regime (ρ > ρ_20%H2O, M < 10 M⊕): R = 1.02 × M^0.28
+        return 1.02 * Math.pow(mplanetEarth, 0.28);
+      } else if (mplanetEarth < 138) {
+        // Volatile-rich / sub-Neptune regime (M < 138 M⊕): R = 0.61 × M^0.67
+        return 0.61 * Math.pow(mplanetEarth, 0.67);
       } else if (mplanetEarth < 4100) {
-        // Jovian and brown dwarf regime: radius ~constant ~11 R_E from Jupiter to 13 M_J
-        // empirical plateau based on Jupiter (~318 M_E, 11.2 R_E) and brown dwarfs
-        return 10.8 + 0.4 * Math.sin(Math.PI * (mplanetEarth - 100) / 4000);
+        // Giant planet regime (M > 138 M⊕): R = 11.9 × M^0.01 (nearly flat ~12 R⊕)
+        // Blended toward empirical Jovian plateau at the upper end
+        return 11.9 * Math.pow(mplanetEarth, 0.01);
       } else {
         // Low-mass stellar regime: M < ~0.13 Msun, use empirical scaling
         // 13 M_J (~4100 M_E) ~ 1 R_J; 0.1 M_sun (~50000 M_E) ~ 0.1 R_sun ~ 10.9 R_E
@@ -1189,6 +1205,16 @@
       
       document.getElementById("targetHzOut").textContent = hzMembership;
 
+      const sigmaJitter = parseFloat(document.getElementById("sigmaJitter").value) || 0;
+      const massPrecisionPct = parseFloat(document.getElementById("massPrecision").value) || 20;
+      const nRVRaw = nRVObservations(kAtTarget, kTarget, sigmaJitter, massPrecisionPct / 100);
+      const nRV = Math.max(10, nRVRaw);
+      const sigmaEff = Math.sqrt(kTarget * kTarget + sigmaJitter * sigmaJitter).toFixed(2);
+      const largeSignalNote = (isFinite(nRVRaw) && nRVRaw < 10) ? " — large signal, readily detected" : "";
+      const impossibleNote = (isFinite(nRVRaw) && nRVRaw > 1000) ? " — basically impossible to detect" : "";
+      document.getElementById("targetNrvOut").textContent =
+        isFinite(nRVRaw) ? `${nRV} observations (${massPrecisionPct}% mass precision, σ_eff=${sigmaEff} m/s${largeSignalNote}${impossibleNote})` : "K = 0, N/A";
+
       if (teff < 2600 || teff > 7200) {
         warn.textContent = "Warning: Teff is outside nominal Kopparapu calibration range (2600-7200 K).";
       } else {
@@ -1197,7 +1223,7 @@
     }
 
     document.getElementById("updateBtn").addEventListener("click", update);
-    ["mplanet", "kinput", "albedo", "pmin", "pmax", "ptarget"].forEach((id) => {
+    ["mplanet", "kinput", "sigmaJitter", "massPrecision", "albedo", "pmin", "pmax", "ptarget"].forEach((id) => {
       document.getElementById(id).addEventListener("change", update);
     });
     document.getElementById("mstar").addEventListener("change", () => {
