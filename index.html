@@ -499,6 +499,14 @@
           <input id="mstar" type="number" step="0.01" min="0.08" max="3.0" value="0.5" />
         </div>
         <div class="field">
+          <label for="distancePc">Distance (pc)</label>
+          <input id="distancePc" type="number" step="0.01" min="0.01" value="10" />
+        </div>
+        <div class="field">
+          <label for="parallaxMas">Parallax (mas)</label>
+          <input id="parallaxMas" type="number" step="0.01" min="0.01" value="100" />
+        </div>
+        <div class="field">
           <label>Stellar spectral type</label>
           <div class="choice-row" id="stellarTypeGroup" role="radiogroup" aria-label="Stellar spectral type">
             <label class="choice"><input type="radio" name="stellarType" value="custom" checked />Custom</label>
@@ -603,6 +611,7 @@
         <div><span class="detail-label">N<sub>RV</sub> for mass at target precision:</span><span id="targetNrvOut">-</span></div>
         <div><span class="detail-label">Input planet mass:</span><span id="targetMinOut">-</span></div>
         <div><span class="detail-label">Equilibrium temperature:</span><span id="targetTeqOut">-</span></div>
+        <div><span class="detail-label">Astrometric semi-amplitude α<sub>*</sub>:</span><span id="targetAstroOut">-</span></div>
         <div><span class="detail-label">Transit depth (ppt):</span><span id="targetTransitDepthOut">-</span></div>
         <div><span class="detail-label">Planetary log(g) [cgs]:</span><span id="targetLoggOut">-</span></div>
         <div><span class="detail-label">Atmosphere Scale height:</span><span id="targetScaleHeightOut" class="detail-block">-</span></div>
@@ -639,7 +648,8 @@
       <br />8) Atmospheric scale height: <i>H</i> = <i>R</i><sub>specific</sub> × <i>T</i><sub>eq</sub> / <i>g</i>, where <i>R</i><sub>specific</sub> = <i>R</i><sub>gas</sub> / <i>M</i><sub>mol</sub> for H₂ (2 g/mol), N₂ (28 g/mol), and CO₂ (44 g/mol).
       <br />9) Number of RV observations to measure planet mass at fractional precision <i>p</i> (white noise, Cloutier et al. 2018, AJ 156, 82, eq. 18):
       <i>N</i><sub>RV</sub> = 2 × (σ<sub>eff</sub> / (<i>p</i> × <i>K</i>))<sup>2</sup>, where σ<sub>eff</sub> = √(σ<sub>inst</sub><sup>2</sup> + σ<sub>jitter</sub><sup>2</sup>).
-      <br />10) Atmospheric transmission signal: Total transit depth ≈ geometric depth + (~3 scale heights) × 2<i>H</i>/<i>R</i><sub>p</sub> × (geometric depth), representing additional depth from atmospheric absorption and scattering extending ~3 scale heights above the nominal photosphere.
+      <br />10) Astrometric semi-amplitude (sky plane): α<sub>*</sub> = (<i>M</i><sub>p</sub> / (<i>M</i><sub>*</sub> + <i>M</i><sub>p</sub>)) × (<i>a</i> / <i>d</i>) in arcsec, with <i>a</i> in au and <i>d</i> in pc.
+      <br />11) Atmospheric transmission signal: Total transit depth ≈ geometric depth + (~3 scale heights) × 2<i>H</i>/<i>R</i><sub>p</sub> × (geometric depth), representing additional depth from atmospheric absorption and scattering extending ~3 scale heights above the nominal photosphere.
       <br /><br /><b>Planets below the stellar activity line</b><br />
       They are not automatically lost: they can still be recovered, but doing so requires increasingly accurate modeling and correction of the activity signal as the planetary RV amplitude drops further below the activity level.
       <br /><br /><b>Understanding atmospheric signals:</b><br />
@@ -906,6 +916,12 @@
       return { atmosphericSignalPpt, relativeIncrease };
     }
 
+    function formatAstrometricSignal(alphaMas) {
+      if (!Number.isFinite(alphaMas) || alphaMas <= 0) return "N/A";
+      if (alphaMas >= 1) return `${formatSigFigs(alphaMas, 3)} mas`;
+      return `${formatSigFigs(alphaMas * 1000, 3)} µas`;
+    }
+
     function buildLegendPosition(pMin, pMax, pTarget, yValue, yMin, yMax, yIsLog = true) {
       const xMid = Math.sqrt(pMin * pMax);
       const putRight = pTarget <= xMid;
@@ -983,6 +999,7 @@
       const pMinInput = Number(document.getElementById("pmin").value);
       const pMaxInput = Number(document.getElementById("pmax").value);
       const pTargetInput = Number(document.getElementById("ptarget").value);
+      const distancePc = Number(document.getElementById("distancePc").value);
 
       const mPlanetEarth = mPlanetInput * unit.toEarth;
       const pMin = periodUnit === "years" ? pMinInput * C.YEAR : pMinInput;
@@ -1033,6 +1050,12 @@
       const aTargetAu = periodDaysToAau(pTarget, mStar);
       const teqAtTarget = 278.5 * (lStar ** 0.25) * ((1 - albedo) / 0.7) ** 0.25 * (aTargetAu ** -0.5);
       const targetInRange = pTarget >= adjPMin && pTarget <= adjPMax;
+      let astroMas = NaN;
+      if (distancePc > 0) {
+        const mPlanetSun = (mPlanetEarth * C.MEARTH) / C.MSUN;
+        const aStarAu = aTargetAu * (mPlanetSun / (mStar + mPlanetSun));
+        astroMas = (aStarAu / distancePc) * 1000;
+      }
 
       const kMin = Math.max(Math.min(...kCurve, kTarget) * 0.6, 1e-5);
       const kMax = Math.max(...kCurve, kTarget, sigmaJitter) * 1.5;
@@ -1364,6 +1387,7 @@
       document.getElementById("targetMdetOut").textContent = `${mReqAtTarget.toFixed(4)} x ${unit.label}`;
       document.getElementById("targetMinOut").textContent = `${mPlanetInput.toFixed(4)} x ${unit.label}`;
       document.getElementById("targetTeqOut").textContent = `${teqAtTarget.toFixed(0)} K`;
+      document.getElementById("targetAstroOut").textContent = formatAstrometricSignal(astroMas);
       
       const transitDepth = transitDepthRange(mPlanetEarth, rStar);
       document.getElementById("targetTransitDepthOut").textContent = formatTransitDepth(transitDepth.minDepth, transitDepth.maxDepth, 2);
@@ -1407,7 +1431,7 @@
     }
 
     document.getElementById("updateBtn").addEventListener("click", update);
-    ["mplanet", "kinput", "sigmaJitter", "massPrecision", "albedo", "pmin", "pmax", "ptarget"].forEach((id) => {
+    ["mplanet", "kinput", "sigmaJitter", "massPrecision", "albedo", "pmin", "pmax", "ptarget", "distancePc", "parallaxMas"].forEach((id) => {
       document.getElementById(id).addEventListener("change", update);
     });
     document.getElementById("mstar").addEventListener("change", () => {
@@ -1458,11 +1482,43 @@
       if (el) el.checked = true;
     }
 
+    let distanceParallaxSyncLock = false;
+
+    function syncParallaxFromDistance() {
+      if (distanceParallaxSyncLock) return;
+      const d = Number(document.getElementById("distancePc").value);
+      if (!(d > 0)) return;
+      distanceParallaxSyncLock = true;
+      document.getElementById("parallaxMas").value = (1000 / d).toFixed(2);
+      distanceParallaxSyncLock = false;
+      update();
+    }
+
+    function syncDistanceFromParallax() {
+      if (distanceParallaxSyncLock) return;
+      const p = Number(document.getElementById("parallaxMas").value);
+      if (!(p > 0)) return;
+      distanceParallaxSyncLock = true;
+      document.getElementById("distancePc").value = (1000 / p).toFixed(2);
+      distanceParallaxSyncLock = false;
+      update();
+    }
+
+    document.getElementById("distancePc").addEventListener("input", syncParallaxFromDistance);
+    document.getElementById("parallaxMas").addEventListener("input", syncDistanceFromParallax);
+
     function applySample(sample) {
       document.getElementById("mstar").value = sample.mstar;
       document.getElementById("mplanet").value = sample.mplanet;
       document.getElementById("kinput").value = sample.kinput;
       document.getElementById("sigmaJitter").value = sample.sigmaJitter ?? document.getElementById("sigmaJitter").value;
+      if (sample.parallaxMas) {
+        document.getElementById("parallaxMas").value = sample.parallaxMas;
+        document.getElementById("distancePc").value = (1000 / sample.parallaxMas).toFixed(2);
+      } else if (sample.distancePc) {
+        document.getElementById("distancePc").value = sample.distancePc;
+        document.getElementById("parallaxMas").value = (1000 / sample.distancePc).toFixed(2);
+      }
       document.getElementById("albedo").value = sample.albedo;
       document.getElementById("pmin").value = sample.pmin;
       document.getElementById("pmax").value = sample.pmax;
@@ -1480,6 +1536,7 @@
         mplanetUnit: "earth",
         kinput: 0.7,
         sigmaJitter: 1.5,
+        parallaxMas: 768.50,
         albedo: 0.30,
         punit: "days",
         pmin: 0.3,
@@ -1496,6 +1553,7 @@
         mplanetUnit: "earth",
         kinput: 0.7,
         sigmaJitter: 1.0,
+        parallaxMas: 100.00,
         albedo: 0.30,
         punit: "days",
         pmin: 0.3,
@@ -1512,6 +1570,7 @@
         mplanetUnit: "jupiter",
         kinput: 0.7,
         sigmaJitter: 1.0,
+        parallaxMas: 50.60,
         albedo: 0.30,
         punit: "days",
         pmin: 0.3,
@@ -1528,6 +1587,7 @@
         mplanetUnit: "earth",
         kinput: 3.0,
         sigmaJitter: 2.0,
+        parallaxMas: 66.70,
         albedo: 0.30,
         punit: "days",
         pmin: 0.3,
@@ -1549,6 +1609,7 @@
       mplanetUnit: "earth",
       kinput: 0.7,
       sigmaJitter: 1.5,
+      parallaxMas: 768.50,
       albedo: 0.30,
       punit: "days",
       pmin: 0.3,
