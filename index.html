@@ -318,6 +318,12 @@
       font-size: 0.92rem;
     }
 
+    .slider-readout {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.25;
+    }
+
     .stats {
       margin-top: 16px;
       display: grid;
@@ -537,6 +543,11 @@
           <label for="albedo">Bond albedo <i>A</i></label>
           <input id="albedo" type="number" step="0.01" min="0" max="0.95" value="0.30" />
         </div>
+        <div class="field">
+          <label for="redisEff">Heat redistribution efficiency ε</label>
+          <input id="redisEff" type="range" min="0" max="1" step="0.05" value="1" />
+          <span id="redisEffOut" class="slider-readout">Full redistribution (ε = 1.00)</span>
+        </div>
       </div>
 
       <div class="input-group" aria-label="RV assumptions">
@@ -630,8 +641,9 @@
       <i>K</i> = [(2piG)/<i>P</i>]<sup>1/3</sup> * <i>M</i><sub>p</sub> / (<i>M</i><sub>star</sub> + <i>M</i><sub>p</sub>)<sup>2/3</sup>.<br />
       2) Main-sequence scaling uses piecewise <i>L</i><sub>star</sub>(<i>M</i><sub>star</sub>) and
       <i>R</i><sub>star</sub> proportional to <i>M</i><sub>star</sub><sup>0.8</sup> (quick-look approximation).<br />
-      3) Equilibrium temperature uses full redistribution:
-      <i>T</i><sub>eq</sub> = [<i>L</i><sub>star</sub>(1 - <i>A</i>) / (16pi sigma <i>a</i><sup>2</sup>)]<sup>1/4</sup>.<br />
+      3) Equilibrium temperature uses configurable redistribution efficiency ε:
+      <i>T</i><sub>eq</sub> = [<i>L</i><sub>star</sub>(1 - <i>A</i>) / (4pi sigma <i>a</i><sup>2</sup>(2 + 2ε))]<sup>1/4</sup>, with ε = 1 for full redistribution and ε = 0 for dayside-only re-radiation.<br />
+      <i>Assumption note:</i> <i>A</i> is the Bond albedo (fraction of incident stellar flux reflected at all wavelengths and phase angles). Real planets with inefficient redistribution or strong greenhouse effects can have dayside temperatures higher than this quick-look <i>T</i><sub>eq</sub> estimate.<br />
       4) Habitable-zone limits are from Kopparapu et al. 2013 (ApJ 765, 131) and updated coefficients from Kopparapu et al. 2014 (ApJL 787, L29), converted to period using Kepler's third law.
       <br />5) Spectral-type to stellar-mass quick-look mapping uses representative dwarf values from Pecaut and Mamajek 2013 (ApJS 208, 9; main-sequence dwarf parameter table, updated online).
       <br />6) Transit depth = (<i>R</i><sub>p</sub>/<i>R</i><sub>star</sub>)<sup>2</sup>. Planet radius <i>R</i><sub>p</sub> inferred from mass using piecewise empirical mass-radius relations:
@@ -916,6 +928,18 @@
       return { atmosphericSignalPpt, relativeIncrease };
     }
 
+    function redistributionLabel(redisEff) {
+      if (redisEff >= 0.95) return `Full redistribution (ε = ${redisEff.toFixed(2)})`;
+      if (redisEff <= 0.05) return `Dayside-only re-radiation (ε = ${redisEff.toFixed(2)})`;
+      return `Intermediate redistribution (ε = ${redisEff.toFixed(2)})`;
+    }
+
+    function equilibriumTemperature(lStar, albedo, aAu, redisEff) {
+      const emittingFactor = 2 + 2 * redisEff; // 2: dayside only, 4: full redistribution
+      const redistributionScale = Math.pow(4 / emittingFactor, 0.25);
+      return 278.5 * (lStar ** 0.25) * ((1 - albedo) / 0.7) ** 0.25 * (aAu ** -0.5) * redistributionScale;
+    }
+
     function formatAstrometricSignal(alphaMas) {
       if (!Number.isFinite(alphaMas) || alphaMas <= 0) return "N/A";
       if (alphaMas >= 1) return `${formatSigFigs(alphaMas, 3)} mas`;
@@ -994,6 +1018,7 @@
       const kTarget = Number(document.getElementById("kinput").value);
       const albedo = Number(document.getElementById("albedo").value);
       const periodUnit = document.querySelector("input[name='punit']:checked")?.value || "days";
+      const redisEff = Number(document.getElementById("redisEff").value);
       const pMinEl = document.getElementById("pmin");
       const pMaxEl = document.getElementById("pmax");
       const pMinInput = Number(document.getElementById("pmin").value);
@@ -1023,9 +1048,11 @@
       const adjPMin = periodUnit === "years" ? adjPMinInput * C.YEAR : adjPMinInput;
       const adjPMax = periodUnit === "years" ? adjPMaxInput * C.YEAR : adjPMaxInput;
 
-      if (!(mStar > 0 && mPlanetInput > 0 && kTarget > 0 && albedo >= 0 && albedo < 1 && adjPMin > 0 && pTarget > 0)) {
+      if (!(mStar > 0 && mPlanetInput > 0 && kTarget > 0 && albedo >= 0 && albedo < 1 && redisEff >= 0 && redisEff <= 1 && adjPMin > 0 && pTarget > 0)) {
         return;
       }
+
+      document.getElementById("redisEffOut").textContent = redistributionLabel(redisEff);
 
       warn.textContent = "";
 
@@ -1043,12 +1070,12 @@
       const mFromActivityCurve = periods.map((p) => invertMassFromKValue(sigmaJitter, p, mStar) / unit.toEarth);
       const teqCurve = periods.map((p) => {
         const aAu = periodDaysToAau(p, mStar);
-        return 278.5 * (lStar ** 0.25) * ((1 - albedo) / 0.7) ** 0.25 * (aAu ** -0.5);
+        return equilibriumTemperature(lStar, albedo, aAu, redisEff);
       });
       const kAtTarget = kSemiAmplitude(pTarget, mStar, mPlanetEarth);
       const mReqAtTarget = invertMassFromK(kTarget, pTarget, mStar) / unit.toEarth;
       const aTargetAu = periodDaysToAau(pTarget, mStar);
-      const teqAtTarget = 278.5 * (lStar ** 0.25) * ((1 - albedo) / 0.7) ** 0.25 * (aTargetAu ** -0.5);
+      const teqAtTarget = equilibriumTemperature(lStar, albedo, aTargetAu, redisEff);
       const targetInRange = pTarget >= adjPMin && pTarget <= adjPMax;
       let astroMas = NaN;
       if (distancePc > 0) {
@@ -1431,8 +1458,10 @@
     }
 
     document.getElementById("updateBtn").addEventListener("click", update);
-    ["mplanet", "kinput", "sigmaJitter", "massPrecision", "albedo", "pmin", "pmax", "ptarget", "distancePc", "parallaxMas"].forEach((id) => {
-      document.getElementById(id).addEventListener("change", update);
+    ["mplanet", "kinput", "sigmaJitter", "massPrecision", "albedo", "redisEff", "pmin", "pmax", "ptarget", "distancePc", "parallaxMas"].forEach((id) => {
+      const el = document.getElementById(id);
+      el.addEventListener("change", update);
+      el.addEventListener("input", update);
     });
     document.getElementById("mstar").addEventListener("change", () => {
       setRadioValue("stellarType", "custom");
@@ -1512,6 +1541,7 @@
       document.getElementById("mplanet").value = sample.mplanet;
       document.getElementById("kinput").value = sample.kinput;
       document.getElementById("sigmaJitter").value = sample.sigmaJitter ?? document.getElementById("sigmaJitter").value;
+      document.getElementById("redisEff").value = sample.redisEff ?? document.getElementById("redisEff").value;
       if (sample.parallaxMas) {
         document.getElementById("parallaxMas").value = sample.parallaxMas;
         document.getElementById("distancePc").value = (1000 / sample.parallaxMas).toFixed(2);
