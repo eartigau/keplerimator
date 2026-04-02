@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Keplerian Guestimator</title>
+  <title>Keplerian and Transit Guestimator</title>
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     :root {
@@ -342,7 +342,7 @@
 </head>
 <body>
   <main class="wrap">
-    <h1>Keplerian Guestimator</h1>
+    <h1>Keplerian and Transit Guestimator</h1>
     <p class="subtitle">
       Precision-RV helper for quick-order detectability and climate context. Enter stellar and planetary masses,
       then explore stellar reflex semi-amplitude <i>K</i> and equilibrium temperature as functions of orbital period.
@@ -444,6 +444,10 @@
         <div><span class="detail-label">Minimum detectable mass:</span><span id="targetMdetOut">-</span></div>
         <div><span class="detail-label">Input planet mass:</span><span id="targetMinOut">-</span></div>
         <div><span class="detail-label">Equilibrium temperature:</span><span id="targetTeqOut">-</span></div>
+        <div><span class="detail-label">Transit depth (ppt):</span><span id="targetTransitDepthOut">-</span></div>
+        <div><span class="detail-label">Planetary log(g) [cgs]:</span><span id="targetLoggOut">-</span></div>
+        <div><span class="detail-label">Atmosphere Scale height (H₂ / N₂ / CO₂):</span><span id="targetScaleHeightOut">-</span></div>
+        <div><span class="detail-label">Atm. contribution to depth (H₂ / N₂ / CO₂):</span><span id="targetAtmSignalOut">-</span></div>
         <div><span class="detail-label">HZ membership:</span><span id="targetHzOut">-</span></div>
       </div>
     </section>
@@ -462,6 +466,33 @@
       <i>T</i><sub>eq</sub> = [<i>L</i><sub>star</sub>(1 - <i>A</i>) / (16pi sigma <i>a</i><sup>2</sup>)]<sup>1/4</sup>.<br />
       4) Habitable-zone limits are from Kopparapu et al. 2013 (ApJ 765, 131) and updated coefficients from Kopparapu et al. 2014 (ApJL 787, L29), converted to period using Kepler's third law.
       <br />5) Spectral-type to stellar-mass quick-look mapping uses representative dwarf values from Pecaut and Mamajek 2013 (ApJS 208, 9; main-sequence dwarf parameter table, updated online).
+      <br />6) Transit depth = (<i>R</i><sub>p</sub>/<i>R</i><sub>star</sub>)<sup>2</sup>. Planet radius <i>R</i><sub>p</sub> inferred from mass using piecewise empirical mass-radius relations:
+      <br /><table style="margin-top:8px; border-collapse: collapse; font-size: 0.88rem;">
+      <tr style="border-bottom: 1px solid #d8cfbc;"><td style="padding: 4px 8px; font-weight: 600;">Mass range</td><td style="padding: 4px 8px; font-weight: 600;">Relation</td><td style="padding: 4px 8px; font-weight: 600;">Reference</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">&lt; 0.5 M<sub>⊕</sub></td><td style="padding: 4px 8px;"><i>R</i> = <i>M</i><sup>0.27</sup></td><td style="padding: 4px 8px;">Enoch+2012, Weiss &amp; Marcy 2014</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">0.5–1.5 M<sub>⊕</sub></td><td style="padding: 4px 8px;"><i>R</i> = <i>M</i><sup>0.27</sup></td><td style="padding: 4px 8px;">Enoch+2012, Weiss &amp; Marcy 2014</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">1.5–10 M<sub>⊕</sub></td><td style="padding: 4px 8px;"><i>R</i> = 1.5 × <i>M</i><sup>0.32</sup></td><td style="padding: 4px 8px;">Weiss &amp; Marcy 2014</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">10–100 M<sub>⊕</sub></td><td style="padding: 4px 8px;"><i>R</i> = 1.2 × <i>M</i><sup>0.35</sup></td><td style="padding: 4px 8px;">Weiss &amp; Marcy 2014</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">100–4100 M<sub>⊕</sub> (Jovian plateau)</td><td style="padding: 4px 8px;"><i>R</i> ≈ 10.8–11.2 R<sub>⊕</sub></td><td style="padding: 4px 8px;">Jupiter, Saturn empirical</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">4100–50000 M<sub>⊕</sub> (brown dwarfs)</td><td style="padding: 4px 8px;"><i>R</i> ∝ <i>M</i><sup>0.08</sup> (Baraffe)</td><td style="padding: 4px 8px;">Baraffe et al. model grid</td></tr>
+      <tr><td style="padding: 4px 8px;">&gt; 50000 M<sub>⊕</sub> (M dwarfs)</td><td style="padding: 4px 8px;"><i>R</i> = 1.06 × <i>M</i><sup>0.57</sup></td><td style="padding: 4px 8px;">Pecaut &amp; Mamajek 2013</td></tr>
+      </table>
+      <br />Range reflects ~15% natural scatter in M-R relations across different compositions and stellar activity.
+      <br /><br />7) Surface gravity: log(<i>g</i>) = log(<i>GM</i>/<i>R</i><sup>2</sup>).
+      <br />8) Atmospheric scale height: <i>H</i> = <i>R</i><sub>specific</sub> × <i>T</i><sub>eq</sub> / <i>g</i>, where <i>R</i><sub>specific</sub> = <i>R</i><sub>gas</sub> / <i>M</i><sub>mol</sub> for H₂ (2 g/mol), N₂ (28 g/mol), and CO₂ (44 g/mol).
+      <br />9) Atmospheric transmission signal: Total transit depth ≈ geometric depth + (~3 scale heights) × 2<i>H</i>/<i>R</i><sub>p</sub> × (geometric depth), representing additional depth from atmospheric absorption and scattering extending ~3 scale heights above the nominal photosphere.
+      
+      <br /><br /><b>Understanding atmospheric signals:</b><br />
+      The <i>atmospheric signal</i> shows the <b>total observed transit depth</b> when the planet's atmosphere is present, versus the bare <b>geometric (solid-body) transit depth</b> listed in the row above. <br /><br />
+      <b>Why atmospheres deepen transits:</b> During transit, starlight passes through the planet's limb and is absorbed and scattered by atmospheric gases high above the solid surface. Since the atmosphere has a finite scale height <i>H</i>, it extends roughly 3–5 <i>H</i> above the apparent photosphere (the "surface" radius measured in transit). This extended absorbing layer increases the projected cross-section, which deepens the observed transit depth beyond geometry alone. This is called <i>atmospheric transmission</i> or the <i>atmospheric signal</i>.<br /><br />
+      <b>Composition sets the amplitude:</b> 
+      <ul style="margin: 4px 0; padding-left: 20px; font-size: 0.88rem;">
+      <li><b>H₂-dominated (light gas):</b> Smallest molecular mass → largest scale height → tallest atmosphere → largest atmospheric signal. Typical for hot Jupiters.</li>
+      <li><b>N₂ (terrestrial air):</b> Intermediate molecular mass → intermediate scale height and signal. Reference for Earth-like atmospheres.</li>
+      <li><b>CO₂ (heavy):</b> Largest molecular mass → smallest scale height → most compressed atmosphere → smallest signal. Limits detectability for CO₂-rich worlds.</li>
+      </ul>
+      <b>Example:</b> HD 189733 b has a hydrogen-dominated atmosphere. Its geometric transit depth is ~2%; with H₂ atmosphere it rises to ~2.2% (atmospheric signal adds ~0.2 ppt). The same planet with pure CO₂ would show only ~2.02%, barely detectable. This difference is observable in transmission spectroscopy and reveals composition.<br /><br />
+      <b>Key insight:</b> Strong atmospheric signals = extended atmospheres = light gases (H/He). Weak or absent signals = compressed atmospheres or no atmosphere = heavy gases or rocky bodies. The three values (H₂, N₂, CO₂) bracket the plausible range for most solar-system-like and exoplanet atmospheres.
     </section>
   </main>
 
@@ -592,8 +623,114 @@
       };
     }
 
+    function planetRadiusFromMass(mplanetEarth) {
+      // Mass-radius relation from Enoch et al. (Astrophysics & Space Science Reviews, 22, 4)
+      // and Weiss & Marcy 2014 (ApJL 783, L6)
+      // Extended to brown dwarfs and low-mass stars
+      // Radius in Earth radii, mass in Earth masses
+      if (mplanetEarth < 0.5) {
+        return mplanetEarth ** 0.27; // Low-mass rocky regime
+      } else if (mplanetEarth < 1.5) {
+        return 1.0 * mplanetEarth ** 0.27; // Transition rocky
+      } else if (mplanetEarth < 10) {
+        return 1.5 * mplanetEarth ** 0.32; // Sub-Neptune regime
+      } else if (mplanetEarth < 100) {
+        return 1.2 * mplanetEarth ** 0.35; // Neptune-Jupiter transition
+      } else if (mplanetEarth < 4100) {
+        // Jovian and brown dwarf regime: radius ~constant ~11 R_E from Jupiter to 13 M_J
+        // empirical plateau based on Jupiter (~318 M_E, 11.2 R_E) and brown dwarfs
+        return 10.8 + 0.4 * Math.sin(Math.PI * (mplanetEarth - 100) / 4000);
+      } else {
+        // Low-mass stellar regime: M < ~0.13 Msun, use empirical scaling
+        // 13 M_J (~4100 M_E) ~ 1 R_J; 0.1 M_sun (~50000 M_E) ~ 0.1 R_sun ~ 10.9 R_E
+        const mSolMass = mplanetEarth / 333000; // convert Earth masses to solar masses
+        if (mSolMass < 0.13) {
+          return 11.0 * Math.pow(mSolMass / 0.1, 0.08); // Baraffe-like M-R for brown dwarfs/M dwarfs
+        } else {
+          return 1.06 * Math.pow(mSolMass, 0.57); // Main-sequence M-dwarf relation (Pecaut & Mamajek)
+        }
+      }
+    }
+
+    function transitDepthRange(mplanetEarth, rstarRsun) {
+      // Calculate central transit depth and envelope with natural M-R scatter (~±15%)
+      const rplanetEarth = planetRadiusFromMass(mplanetEarth);
+      const rplanetRsun = rplanetEarth / 109.16; // conversion factor: 1 Rsun = 109.16 Rearth
+      
+      const centralDepth = (rplanetRsun / rstarRsun) ** 2 * 1e3; // in ppt (parts per thousand)
+      const relUncertainty = 0.15; // ~15% M-R relation scatter
+      const minDepth = centralDepth * (1 - relUncertainty);
+      const maxDepth = centralDepth * (1 + relUncertainty);
+      
+      return { minDepth, maxDepth, centralDepth };
+    }
+
     function formatRange(minV, maxV, unit, digits = 1) {
       return `${minV.toFixed(digits)}-${maxV.toFixed(digits)} ${unit}`;
+    }
+
+    function formatSigFigs(value, sigFigs) {
+      if (value === 0) return "0";
+      const magnitude = Math.floor(Math.log10(Math.abs(value)));
+      const decimals = Math.max(0, sigFigs - 1 - magnitude);
+      return value.toFixed(decimals);
+    }
+
+    function formatTransitDepth(minDepthPpt, maxDepthPpt, sigFigs = 2) {
+      // Intelligently choose between %, ppt, and ppm
+      const meanDepth = (minDepthPpt + maxDepthPpt) / 2;
+      const sameValue = Math.abs(minDepthPpt - maxDepthPpt) <= Math.max(1e-12, Math.abs(meanDepth) * 1e-9);
+      
+      if (meanDepth >= 10) {
+        // Show in percent (convert ppt to %)
+        const minPercent = minDepthPpt / 10;
+        const maxPercent = maxDepthPpt / 10;
+        if (sameValue) return `${formatSigFigs(minPercent, sigFigs)} %`;
+        return `${formatSigFigs(minPercent, sigFigs)}-${formatSigFigs(maxPercent, sigFigs)} %`;
+      } else if (meanDepth >= 1) {
+        // Show in ppt
+        if (sameValue) return `${formatSigFigs(minDepthPpt, sigFigs)} ppt`;
+        return `${formatSigFigs(minDepthPpt, sigFigs)}-${formatSigFigs(maxDepthPpt, sigFigs)} ppt`;
+      } else {
+        // Show in ppm (convert ppt to ppm: 1 ppt = 1000 ppm)
+        const minPpm = minDepthPpt * 1000;
+        const maxPpm = maxDepthPpt * 1000;
+        if (sameValue) return `${formatSigFigs(minPpm, sigFigs)} ppm`;
+        return `${formatSigFigs(minPpm, sigFigs)}-${formatSigFigs(maxPpm, sigFigs)} ppm`;
+      }
+    }
+
+    function planetLogg(mplanetEarth, rplanetEarth) {
+      // Calculate log-g in cgs units: log10(g [cm/s^2])
+      // M in Earth masses, R in Earth radii
+      const mPlanetKg = mplanetEarth * C.MEARTH;
+      const rPlanetM = rplanetEarth * 6.371e6; // 1 Earth radius in meters
+      const gSI = (C.G * mPlanetKg) / (rPlanetM * rPlanetM); // m/s^2
+      const gCgs = gSI * 100; // cm/s^2
+      return Math.log10(gCgs);
+    }
+
+    function scaleHeight(temperatureK, molecularMass, mplanetEarth, rplanetEarth) {
+      // Scale height H = R_specific * T / g
+      // temperatureK: temperature in K
+      // molecularMass: in g/mol (e.g., 2 for H2, 28 for N2, 44 for CO2)
+      // Returns H in km
+      const R_gas = 8.314; // J/(mol*K) = m^2 kg/(s^2 mol K)
+      const R_specific = R_gas / (molecularMass / 1000); // m^2/(s^2 K)
+      const gCgs = Math.pow(10, planetLogg(mplanetEarth, rplanetEarth)); // cm/s^2
+      const g = gCgs / 100; // m/s^2
+      const H_m = (R_specific * temperatureK) / g;
+      return H_m / 1000; // convert to km
+    }
+
+    function atmosphericTransitSignal(scaleHeightKm, rplanetEarth, rstarRsun, geometricDepthPpt, nScaleHeights = 3) {
+      // Atmospheric transit depth increase
+      // Assumes atmosphere extends ~nScaleHeights above cloudtop
+      // Signal is approximately geometric depth times (1 + 2*n*H/R_p)
+      const rplanetKm = rplanetEarth * 6371; // convert to km
+      const relativeIncrease = 2 * nScaleHeights * scaleHeightKm / rplanetKm;
+      const atmosphericSignalPpt = geometricDepthPpt * relativeIncrease;
+      return { atmosphericSignalPpt, relativeIncrease };
     }
 
     function buildLegendPosition(pMin, pMax, pTarget, yValue, yMin, yMax, yIsLog = true) {
@@ -1026,6 +1163,30 @@
       document.getElementById("targetMdetOut").textContent = `${mReqAtTarget.toFixed(4)} x ${unit.label}`;
       document.getElementById("targetMinOut").textContent = `${mPlanetInput.toFixed(4)} x ${unit.label}`;
       document.getElementById("targetTeqOut").textContent = `${teqAtTarget.toFixed(0)} K`;
+      
+      const transitDepth = transitDepthRange(mPlanetEarth, rStar);
+      document.getElementById("targetTransitDepthOut").textContent = formatTransitDepth(transitDepth.minDepth, transitDepth.maxDepth, 2);
+      
+      // Atmospheric properties
+      const rplanetEarth = planetRadiusFromMass(mPlanetEarth);
+      const logg = planetLogg(mPlanetEarth, rplanetEarth);
+      document.getElementById("targetLoggOut").textContent = `${logg.toFixed(2)} dex`;
+      
+      // Scale heights for H2, N2, CO2 at equilibrium temperature
+      const H_H2 = scaleHeight(teqAtTarget, 2, mPlanetEarth, rplanetEarth);    // H2
+      const H_N2 = scaleHeight(teqAtTarget, 28, mPlanetEarth, rplanetEarth);   // N2
+      const H_CO2 = scaleHeight(teqAtTarget, 44, mPlanetEarth, rplanetEarth);  // CO2
+      document.getElementById("targetScaleHeightOut").textContent = 
+        `${formatSigFigs(H_H2, 2)} / ${formatSigFigs(H_N2, 2)} / ${formatSigFigs(H_CO2, 2)} km`;
+      
+      // Atmospheric transit signals (contribution only, not total)
+      const atm_H2 = atmosphericTransitSignal(H_H2, rplanetEarth, rStar, transitDepth.centralDepth, 3);
+      const atm_N2 = atmosphericTransitSignal(H_N2, rplanetEarth, rStar, transitDepth.centralDepth, 3);
+      const atm_CO2 = atmosphericTransitSignal(H_CO2, rplanetEarth, rStar, transitDepth.centralDepth, 3);
+      
+      document.getElementById("targetAtmSignalOut").textContent = 
+        `${formatTransitDepth(atm_H2.atmosphericSignalPpt, atm_H2.atmosphericSignalPpt, 2)} / ${formatTransitDepth(atm_N2.atmosphericSignalPpt, atm_N2.atmosphericSignalPpt, 2)} / ${formatTransitDepth(atm_CO2.atmosphericSignalPpt, atm_CO2.atmosphericSignalPpt, 2)}`;
+      
       document.getElementById("targetHzOut").textContent = hzMembership;
 
       if (teff < 2600 || teff > 7200) {
