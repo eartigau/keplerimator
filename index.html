@@ -16,6 +16,8 @@
       --line: #d8cfbc;
       --hz-opt: rgba(72, 153, 108, 0.16);
       --hz-cons: rgba(72, 153, 108, 0.28);
+      --shadow-soft: 0 12px 28px rgba(43, 39, 30, 0.08);
+      --shadow-crisp: 0 6px 16px rgba(43, 39, 30, 0.08);
     }
 
     * {
@@ -26,11 +28,26 @@
       margin: 0;
       color: var(--ink);
       background:
-        radial-gradient(circle at 15% 15%, #efe4ca 0%, transparent 45%),
-        radial-gradient(circle at 85% 10%, #d9ebe2 0%, transparent 40%),
+        radial-gradient(circle at 12% 14%, #eadfbf 0%, transparent 42%),
+        radial-gradient(circle at 88% 10%, #d3e7dd 0%, transparent 38%),
+        radial-gradient(circle at 60% 120%, #f4e6ce 0%, transparent 35%),
         linear-gradient(160deg, #f6f2e8 0%, #eee6d3 100%);
       font-family: "Avenir Next", "Helvetica Neue", Helvetica, sans-serif;
       min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(42, 74, 64, 0.14) 1.1px, transparent 1.2px),
+        radial-gradient(circle, rgba(132, 86, 54, 0.12) 0.9px, transparent 1px);
+      background-size: 80px 80px, 120px 120px;
+      background-position: 18px 24px, 56px 40px;
+      opacity: 0.25;
     }
 
     .wrap {
@@ -44,6 +61,47 @@
       font-size: clamp(1.8rem, 1.5rem + 1.8vw, 3rem);
       letter-spacing: 0.01em;
       font-weight: 700;
+      color: #1f241f;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .hero {
+      position: relative;
+      padding: 16px 18px 12px;
+      margin-bottom: 10px;
+      border: 1px solid color-mix(in srgb, var(--line) 88%, #ffffff);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255, 251, 242, 0.86) 0%, rgba(247, 240, 225, 0.9) 100%);
+      box-shadow: var(--shadow-crisp);
+      overflow: hidden;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 220px;
+      height: 220px;
+      right: -90px;
+      top: -130px;
+      border: 2px solid rgba(47, 109, 91, 0.2);
+      box-shadow:
+        0 0 0 20px rgba(47, 109, 91, 0.08),
+        0 0 0 44px rgba(185, 101, 53, 0.08);
+    }
+
+    .hero::after {
+      width: 11px;
+      height: 11px;
+      right: 112px;
+      top: 58px;
+      background: radial-gradient(circle at 35% 35%, #fef7de 0%, #e5b96b 62%, #b96d2f 100%);
+      box-shadow: 0 0 0 3px rgba(255, 243, 209, 0.5);
     }
 
     .subtitle {
@@ -53,21 +111,46 @@
       line-height: 1.45;
     }
 
+    .subtitle strong {
+      color: #2a5b4b;
+      letter-spacing: 0.01em;
+    }
+
     .grid {
       display: grid;
-      gap: 14px;
+      gap: 10px;
       grid-template-columns: repeat(4, minmax(160px, 1fr));
-      background: color-mix(in srgb, var(--panel) 85%, white);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 90%, white) 0%, color-mix(in srgb, var(--panel) 82%, white) 100%);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-      box-shadow: 0 10px 30px rgba(43, 39, 30, 0.08);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .input-group {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid color-mix(in srgb, var(--line) 92%, #ffffff);
+      border-radius: 12px;
+      padding: 9px 10px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .input-group h2 {
+      margin: 0 0 2px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #355f52;
     }
 
     .field {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
 
     .field.mass-unit {
@@ -91,6 +174,10 @@
       gap: 6px;
     }
 
+    .inline-period input[type="number"] {
+      width: 8.5ch;
+    }
+
     .choice-row {
       display: flex;
       gap: 10px;
@@ -108,11 +195,12 @@
       border: 1px solid var(--line);
       border-radius: 999px;
       padding: 6px 10px;
-      background: #fffdf8;
+      background: linear-gradient(180deg, #fffefb 0%, #f7f1e2 100%);
       color: var(--ink);
       font-size: 0.9rem;
       font-weight: 600;
       white-space: nowrap;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
     }
 
     .choice input {
@@ -137,6 +225,14 @@
       font-size: 1rem;
       background: #fffdf8;
       color: var(--ink);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: color-mix(in srgb, var(--accent) 55%, #ffffff);
+      box-shadow: 0 0 0 3px rgba(47, 109, 91, 0.14);
     }
 
     input[type="number"] {
@@ -168,6 +264,11 @@
       gap: 10px;
       flex-wrap: wrap;
       margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 252, 245, 0.72);
+      box-shadow: var(--shadow-crisp);
     }
 
     .samples-title {
@@ -178,7 +279,7 @@
     }
 
     .sample-btn {
-      background: #e8f2ed;
+      background: linear-gradient(180deg, #f1f8f5 0%, #dbece4 100%);
       color: #1c4a3d;
       border: 1px solid #b9d3c8;
       border-radius: 999px;
@@ -186,10 +287,12 @@
       font-size: 0.88rem;
       font-weight: 700;
       cursor: pointer;
+      transition: transform 0.1s ease, filter 0.2s ease;
     }
 
     .sample-btn:hover {
       filter: brightness(1.03);
+      transform: translateY(-1px);
     }
 
     button {
@@ -199,9 +302,10 @@
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
-      background: var(--accent);
+      background: linear-gradient(180deg, #3f8b74 0%, var(--accent) 100%);
       color: #fff;
       transition: transform 0.1s ease, filter 0.2s ease;
+      box-shadow: 0 4px 14px rgba(47, 109, 91, 0.28);
     }
 
     button:hover {
@@ -223,9 +327,16 @@
 
     .card {
       border: 1px solid var(--line);
-      background: color-mix(in srgb, var(--panel) 90%, white);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 90%, white) 0%, #fffdf7 100%);
       border-radius: 12px;
       padding: 12px;
+      box-shadow: var(--shadow-crisp);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(43, 39, 30, 0.1);
     }
 
     .card b {
@@ -239,9 +350,10 @@
     .detail {
       margin-top: 14px;
       border: 1px solid var(--line);
-      background: color-mix(in srgb, var(--panel) 92%, white);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 92%, white) 0%, #fffdf8 100%);
       border-radius: 12px;
       padding: 12px;
+      box-shadow: var(--shadow-crisp);
     }
 
     .detail h2 {
@@ -262,14 +374,33 @@
       margin-right: 6px;
     }
 
+    .detail-block {
+      display: block;
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+
     .chart {
       margin-top: 16px;
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: rgba(255, 253, 247, 0.88);
-      box-shadow: 0 8px 24px rgba(43, 39, 30, 0.07);
+      background: linear-gradient(180deg, rgba(255, 253, 247, 0.92) 0%, rgba(255, 251, 241, 0.86) 100%);
+      box-shadow: 0 8px 24px rgba(43, 39, 30, 0.08);
       overflow: hidden;
       min-height: 360px;
+      position: relative;
+    }
+
+    .chart::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
+      opacity: 0.55;
+      pointer-events: none;
     }
 
     #plotK,
@@ -283,10 +414,11 @@
       font-size: 0.9rem;
       color: var(--muted);
       line-height: 1.45;
-      background: rgba(255, 253, 247, 0.8);
+      background: linear-gradient(180deg, rgba(255, 253, 247, 0.86) 0%, rgba(252, 247, 236, 0.86) 100%);
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 12px;
+      box-shadow: var(--shadow-crisp);
     }
 
     @media (max-width: 860px) {
@@ -342,11 +474,14 @@
 </head>
 <body>
   <main class="wrap">
-    <h1>Keplerian and Transit Guestimator</h1>
-    <p class="subtitle">
-      Precision-RV helper for quick-order detectability and climate context. Enter stellar and planetary masses,
-      then explore stellar reflex semi-amplitude <i>K</i> and equilibrium temperature as functions of orbital period.
-    </p>
+    <section class="hero" aria-label="Exoplanet mission header">
+      <h1>Keplerian and Transit Guestimator</h1>
+      <p class="subtitle">
+        Precision-RV helper for quick-order detectability and climate context. Enter stellar and planetary masses,
+        then explore stellar reflex semi-amplitude <i>K</i> and equilibrium temperature as functions of orbital period.
+        <strong>Designed for exoplanet follow-up triage.</strong>
+      </p>
+    </section>
 
     <section class="samples" aria-label="Sample systems">
       <span class="samples-title">Sample systems</span>
@@ -357,73 +492,85 @@
     </section>
 
     <section class="grid" aria-label="Inputs">
-      <div class="field">
-        <label for="mstar">Stellar mass (<i>M</i><sub>sun</sub>)</label>
-        <input id="mstar" type="number" step="0.01" min="0.08" max="3.0" value="0.5" />
-        <label>Stellar spectral type</label>
-        <div class="choice-row" id="stellarTypeGroup" role="radiogroup" aria-label="Stellar spectral type">
-          <label class="choice"><input type="radio" name="stellarType" value="custom" checked />Custom</label>
-          <label class="choice"><input type="radio" name="stellarType" value="G2V" />G2V</label>
-          <label class="choice"><input type="radio" name="stellarType" value="K5V" />K5V</label>
-          <label class="choice"><input type="radio" name="stellarType" value="M0V" />M0V</label>
-          <label class="choice"><input type="radio" name="stellarType" value="M4V" />M4V</label>
-          <label class="choice"><input type="radio" name="stellarType" value="M8V" />M8V</label>
+      <div class="input-group" aria-label="Stellar properties">
+        <h2>Stellar properties</h2>
+        <div class="field">
+          <label for="mstar">Stellar mass (<i>M</i><sub>sun</sub>)</label>
+          <input id="mstar" type="number" step="0.01" min="0.08" max="3.0" value="0.5" />
         </div>
-      </div>
-
-      <div class="field mass-unit">
-        <label>Planet mass unit</label>
-        <div class="choice-row" id="mplanetUnitGroup" role="radiogroup" aria-label="Planet mass unit">
-          <label class="choice"><input type="radio" name="mplanetUnit" value="earth" checked />Earth</label>
-          <label class="choice"><input type="radio" name="mplanetUnit" value="neptune" />Neptune</label>
-          <label class="choice"><input type="radio" name="mplanetUnit" value="jupiter" />Jupiter</label>
-        </div>
-        <label for="mplanet">Planet mass value</label>
-        <input id="mplanet" type="number" step="0.01" min="0.01" value="0.7" />
-      </div>
-
-      <div class="field">
-        <label for="kinput">pRV precision / σ<sub>inst</sub> (m/s)</label>
-        <input id="kinput" type="number" step="0.01" min="0.01" value="1.0" />
-      </div>
-
-      <div class="field">
-        <label for="sigmaJitter">Stellar jitter σ<sub>jitter</sub> (m/s)</label>
-        <input id="sigmaJitter" type="number" step="0.1" min="0" value="2.0" />
-      </div>
-
-      <div class="field">
-        <label for="massPrecision">Target mass precision (%)</label>
-        <input id="massPrecision" type="number" step="1" min="1" max="100" value="10" />
-      </div>
-
-      <div class="field">
-        <label for="albedo">Bond albedo <i>A</i></label>
-        <input id="albedo" type="number" step="0.01" min="0" max="0.95" value="0.30" />
-      </div>
-
-      <div class="field">
-        <label for="punit">Period unit</label>
-        <div class="choice-row" id="punitGroup" role="radiogroup" aria-label="Period unit">
-          <label class="choice"><input type="radio" name="punit" value="days" checked />days</label>
-          <label class="choice"><input type="radio" name="punit" value="years" />years</label>
-        </div>
-      </div>
-
-      <div class="field period-range">
-        <label>Period min / target / max</label>
-        <div class="inline-periods">
-          <div class="inline-period">
-            <label for="pmin">Min</label>
-            <input id="pmin" type="number" step="0.01" min="0.001" value="0.3" />
+        <div class="field">
+          <label>Stellar spectral type</label>
+          <div class="choice-row" id="stellarTypeGroup" role="radiogroup" aria-label="Stellar spectral type">
+            <label class="choice"><input type="radio" name="stellarType" value="custom" checked />Custom</label>
+            <label class="choice"><input type="radio" name="stellarType" value="G2V" />G2V</label>
+            <label class="choice"><input type="radio" name="stellarType" value="K5V" />K5V</label>
+            <label class="choice"><input type="radio" name="stellarType" value="M0V" />M0V</label>
+            <label class="choice"><input type="radio" name="stellarType" value="M4V" />M4V</label>
+            <label class="choice"><input type="radio" name="stellarType" value="M8V" />M8V</label>
           </div>
-          <div class="inline-period">
-            <label for="ptarget">Target</label>
-            <input id="ptarget" type="number" step="0.01" min="0.001" value="10" />
+        </div>
+      </div>
+
+      <div class="input-group" aria-label="Planet properties">
+        <h2>Planet properties</h2>
+        <div class="field mass-unit">
+          <label>Planet mass unit</label>
+          <div class="choice-row" id="mplanetUnitGroup" role="radiogroup" aria-label="Planet mass unit">
+            <label class="choice"><input type="radio" name="mplanetUnit" value="earth" checked />Earth</label>
+            <label class="choice"><input type="radio" name="mplanetUnit" value="neptune" />Neptune</label>
+            <label class="choice"><input type="radio" name="mplanetUnit" value="jupiter" />Jupiter</label>
           </div>
-          <div class="inline-period">
-            <label for="pmax">Max</label>
-            <input id="pmax" type="number" step="0.1" min="0.01" value="3000" />
+        </div>
+        <div class="field">
+          <label for="mplanet">Planet mass value</label>
+          <input id="mplanet" type="number" step="0.01" min="0.01" value="0.7" />
+        </div>
+        <div class="field">
+          <label for="albedo">Bond albedo <i>A</i></label>
+          <input id="albedo" type="number" step="0.01" min="0" max="0.95" value="0.30" />
+        </div>
+      </div>
+
+      <div class="input-group" aria-label="RV assumptions">
+        <h2>RV assumptions</h2>
+        <div class="field">
+          <label for="kinput">pRV precision / σ<sub>inst</sub> (m/s)</label>
+          <input id="kinput" type="number" step="0.01" min="0.01" value="1.0" />
+        </div>
+        <div class="field">
+          <label for="sigmaJitter">Stellar jitter σ<sub>jitter</sub> (m/s)</label>
+          <input id="sigmaJitter" type="number" step="0.1" min="0" value="2.0" />
+        </div>
+        <div class="field">
+          <label for="massPrecision">Target mass precision (%)</label>
+          <input id="massPrecision" type="number" step="1" min="1" max="100" value="10" />
+        </div>
+      </div>
+
+      <div class="input-group" aria-label="Period sampling">
+        <h2>Period sampling</h2>
+        <div class="field">
+          <label for="punit">Period unit</label>
+          <div class="choice-row" id="punitGroup" role="radiogroup" aria-label="Period unit">
+            <label class="choice"><input type="radio" name="punit" value="days" checked />days</label>
+            <label class="choice"><input type="radio" name="punit" value="years" />years</label>
+          </div>
+        </div>
+        <div class="field period-range">
+          <label>Period min / target / max</label>
+          <div class="inline-periods">
+            <div class="inline-period">
+              <label for="pmin">Min</label>
+              <input id="pmin" type="number" step="0.01" min="0.001" value="0.3" />
+            </div>
+            <div class="inline-period">
+              <label for="ptarget">Target</label>
+              <input id="ptarget" type="number" step="0.01" min="0.001" value="10" />
+            </div>
+            <div class="inline-period">
+              <label for="pmax">Max</label>
+              <input id="pmax" type="number" step="0.1" min="0.01" value="3000" />
+            </div>
           </div>
         </div>
       </div>
@@ -448,7 +595,8 @@
         <div><span class="detail-label">Target period:</span><span id="targetPeriodOut">-</span></div>
         <div><span class="detail-label">Semi-major axis:</span><span id="targetAOut">-</span></div>
         <div><span class="detail-label">RV semi-amplitude K:</span><span id="targetKOut">-</span></div>
-        <div><span class="detail-label">pRV precision:</span><span id="targetPrvOut">-</span></div>
+        <div><span class="detail-label">pRV precision / σ<sub>inst</sub>:</span><span id="targetPrvOut">-</span></div>
+          <div><span class="detail-label">Stellar jitter σ<sub>jitter</sub>:</span><span id="targetJitterOut">-</span></div>
         <div><span class="detail-label">K / pRV:</span><span id="targetSnrOut">-</span></div>
         <div><span class="detail-label">Detectability status:</span><span id="targetDetOut">-</span></div>
         <div><span class="detail-label">Minimum detectable mass:</span><span id="targetMdetOut">-</span></div>
@@ -457,8 +605,8 @@
         <div><span class="detail-label">Equilibrium temperature:</span><span id="targetTeqOut">-</span></div>
         <div><span class="detail-label">Transit depth (ppt):</span><span id="targetTransitDepthOut">-</span></div>
         <div><span class="detail-label">Planetary log(g) [cgs]:</span><span id="targetLoggOut">-</span></div>
-        <div><span class="detail-label">Atmosphere Scale height (H₂ / N₂ / CO₂):</span><span id="targetScaleHeightOut">-</span></div>
-        <div><span class="detail-label">Atm. contribution to depth (H₂ / N₂ / CO₂):</span><span id="targetAtmSignalOut">-</span></div>
+        <div><span class="detail-label">Atmosphere Scale height:</span><span id="targetScaleHeightOut" class="detail-block">-</span></div>
+        <div><span class="detail-label">Atm. contribution to transit depth:</span><span id="targetAtmSignalOut" class="detail-block">-</span></div>
         <div><span class="detail-label">HZ membership:</span><span id="targetHzOut">-</span></div>
       </div>
     </section>
@@ -489,10 +637,11 @@
       <br />Range reflects ~15% natural scatter in M-R relations across different compositions and stellar activity.
       <br /><br />7) Surface gravity: log(<i>g</i>) = log(<i>GM</i>/<i>R</i><sup>2</sup>).
       <br />8) Atmospheric scale height: <i>H</i> = <i>R</i><sub>specific</sub> × <i>T</i><sub>eq</sub> / <i>g</i>, where <i>R</i><sub>specific</sub> = <i>R</i><sub>gas</sub> / <i>M</i><sub>mol</sub> for H₂ (2 g/mol), N₂ (28 g/mol), and CO₂ (44 g/mol).
-      <br />10) Number of RV observations to measure planet mass at fractional precision <i>p</i> (white noise, Cloutier et al. 2018, AJ 156, 82, eq. 18):
+      <br />9) Number of RV observations to measure planet mass at fractional precision <i>p</i> (white noise, Cloutier et al. 2018, AJ 156, 82, eq. 18):
       <i>N</i><sub>RV</sub> = 2 × (σ<sub>eff</sub> / (<i>p</i> × <i>K</i>))<sup>2</sup>, where σ<sub>eff</sub> = √(σ<sub>inst</sub><sup>2</sup> + σ<sub>jitter</sub><sup>2</sup>).
-      <br />9) Atmospheric transmission signal: Total transit depth ≈ geometric depth + (~3 scale heights) × 2<i>H</i>/<i>R</i><sub>p</sub> × (geometric depth), representing additional depth from atmospheric absorption and scattering extending ~3 scale heights above the nominal photosphere.
-      
+      <br />10) Atmospheric transmission signal: Total transit depth ≈ geometric depth + (~3 scale heights) × 2<i>H</i>/<i>R</i><sub>p</sub> × (geometric depth), representing additional depth from atmospheric absorption and scattering extending ~3 scale heights above the nominal photosphere.
+      <br /><br /><b>Planets below the stellar activity line</b><br />
+      They are not automatically lost: they can still be recovered, but doing so requires increasingly accurate modeling and correction of the activity signal as the planetary RV amplitude drops further below the activity level.
       <br /><br /><b>Understanding atmospheric signals:</b><br />
       The <i>atmospheric signal</i> shows the <b>total observed transit depth</b> when the planet's atmosphere is present, versus the bare <b>geometric (solid-body) transit depth</b> listed in the row above. <br /><br />
       <b>Why atmospheres deepen transits:</b> During transit, starlight passes through the planet's limb and is absorbed and scattered by atmospheric gases high above the solid surface. Since the atmosphere has a finite scale height <i>H</i>, it extends roughly 3–5 <i>H</i> above the apparent photosphere (the "surface" radius measured in transit). This extended absorbing layer increases the projected cross-section, which deepens the observed transit depth beyond geometry alone. This is called <i>atmospheric transmission</i> or the <i>atmospheric signal</i>.<br /><br />
@@ -541,6 +690,14 @@
       const sigmaTotal = Math.sqrt(sigmaInst * sigmaInst + sigmaJitter * sigmaJitter);
       const sigmaK = massPrecisionFrac * K;
       return Math.ceil(2 * Math.pow(sigmaTotal / sigmaK, 2));
+    }
+
+    function invertMassFromKValue(kValue, pDays, mStarSun) {
+      if (kValue <= 0 || pDays <= 0 || mStarSun <= 0) return 0;
+      const periodSec = pDays * C.DAY;
+      const mStarKg = mStarSun * C.MSUN;
+      const mPlanetKg = kValue * Math.pow(periodSec / (2 * Math.PI * C.G), 1 / 3) * Math.pow(mStarKg, 2 / 3);
+      return mPlanetKg / C.MEARTH;
     }
 
     function logspace(min, max, n) {
@@ -862,9 +1019,11 @@
       const rStar = rstarMainSequence(mStar);
       const teff = teffFromLR(lStar, rStar);
       const hz = hzBoundsPeriods(mStar, lStar, teff);
+      const sigmaJitter = parseFloat(document.getElementById("sigmaJitter").value) || 0;
 
       const kCurve = periods.map((p) => kSemiAmplitude(p, mStar, mPlanetEarth));
       const mFromKCurve = periods.map((p) => invertMassFromK(kTarget, p, mStar) / unit.toEarth);
+      const mFromActivityCurve = periods.map((p) => invertMassFromKValue(sigmaJitter, p, mStar) / unit.toEarth);
       const teqCurve = periods.map((p) => {
         const aAu = periodDaysToAau(p, mStar);
         return 278.5 * (lStar ** 0.25) * ((1 - albedo) / 0.7) ** 0.25 * (aAu ** -0.5);
@@ -876,9 +1035,9 @@
       const targetInRange = pTarget >= adjPMin && pTarget <= adjPMax;
 
       const kMin = Math.max(Math.min(...kCurve, kTarget) * 0.6, 1e-5);
-      const kMax = Math.max(...kCurve, kTarget) * 1.5;
-      const mMin = Math.max(Math.min(...mFromKCurve, mPlanetInput) * 0.6, 1e-5);
-      const mMax = Math.max(...mFromKCurve, mPlanetInput) * 1.5;
+      const kMax = Math.max(...kCurve, kTarget, sigmaJitter) * 1.5;
+      const mMin = Math.max(Math.min(...mFromKCurve, ...mFromActivityCurve, mPlanetInput) * 0.6, 1e-5);
+      const mMax = Math.max(...mFromKCurve, ...mFromActivityCurve, mPlanetInput) * 1.5;
       const teqMin = Math.min(...teqCurve);
       const teqMax = Math.max(...teqCurve);
 
@@ -951,6 +1110,13 @@
             mode: "lines",
             name: `pRV precision = ${kTarget.toFixed(2)} m/s`,
             line: { width: 1.5, dash: "dot", color: "#7e4e2a" }
+          },
+          {
+            x: periods,
+            y: Array(periods.length).fill(sigmaJitter),
+            mode: "lines",
+            name: `Stellar jitter = ${sigmaJitter.toFixed(2)} m/s`,
+            line: { width: 1.5, dash: "dash", color: "#9b2c2c" }
           },
           {
             x: targetInRange ? [pTarget] : [],
@@ -1030,6 +1196,13 @@
           },
           {
             x: periods,
+            y: mFromActivityCurve,
+            mode: "lines",
+            name: `Activity-correction threshold (${unit.label})`,
+            line: { width: 1.5, dash: "dash", color: "#9b2c2c" }
+          },
+          {
+            x: periods,
             y: Array(periods.length).fill(mPlanetInput),
             mode: "lines",
             name: `Input planet mass = ${mPlanetInput.toFixed(3)} ${unit.label}`,
@@ -1082,6 +1255,17 @@
               y0: 0,
               y1: 1,
               line: { color: "#4a4a4a", width: 1.5, dash: "dash" }
+            }
+          ],
+          annotations: [
+            {
+              x: periods[Math.floor(periods.length * 0.58)],
+              y: mFromActivityCurve[Math.floor(periods.length * 0.58)],
+              text: "Below this dashed line, detections require activity correction",
+              showarrow: false,
+              yshift: -14,
+              font: { size: 11, color: "#9b2c2c" },
+              bgcolor: "rgba(255,248,240,0.85)"
             }
           ],
           legend: legendMass
@@ -1174,6 +1358,7 @@
       document.getElementById("targetAOut").textContent = `${aTargetAu.toFixed(4)} au`;
       document.getElementById("targetKOut").textContent = `${kAtTarget.toFixed(2)} m/s`;
       document.getElementById("targetPrvOut").textContent = `${kTarget.toFixed(2)} m/s`;
+      document.getElementById("targetJitterOut").textContent = `${sigmaJitter.toFixed(2)} m/s`;
       document.getElementById("targetSnrOut").textContent = `${(kAtTarget / kTarget).toFixed(3)}`;
       document.getElementById("targetDetOut").textContent = detectable ? "Detectable (K >= pRV)" : "Not detectable (K < pRV)";
       document.getElementById("targetMdetOut").textContent = `${mReqAtTarget.toFixed(4)} x ${unit.label}`;
@@ -1192,28 +1377,27 @@
       const H_H2 = scaleHeight(teqAtTarget, 2, mPlanetEarth, rplanetEarth);    // H2
       const H_N2 = scaleHeight(teqAtTarget, 28, mPlanetEarth, rplanetEarth);   // N2
       const H_CO2 = scaleHeight(teqAtTarget, 44, mPlanetEarth, rplanetEarth);  // CO2
-      document.getElementById("targetScaleHeightOut").textContent = 
-        `${formatSigFigs(H_H2, 2)} / ${formatSigFigs(H_N2, 2)} / ${formatSigFigs(H_CO2, 2)} km`;
+      document.getElementById("targetScaleHeightOut").innerHTML =
+        `H<sub>2</sub>: ${formatSigFigs(H_H2, 2)} km<br>N<sub>2</sub>: ${formatSigFigs(H_N2, 2)} km<br>CO<sub>2</sub>: ${formatSigFigs(H_CO2, 2)} km`;
       
       // Atmospheric transit signals (contribution only, not total)
       const atm_H2 = atmosphericTransitSignal(H_H2, rplanetEarth, rStar, transitDepth.centralDepth, 3);
       const atm_N2 = atmosphericTransitSignal(H_N2, rplanetEarth, rStar, transitDepth.centralDepth, 3);
       const atm_CO2 = atmosphericTransitSignal(H_CO2, rplanetEarth, rStar, transitDepth.centralDepth, 3);
       
-      document.getElementById("targetAtmSignalOut").textContent = 
-        `${formatTransitDepth(atm_H2.atmosphericSignalPpt, atm_H2.atmosphericSignalPpt, 2)} / ${formatTransitDepth(atm_N2.atmosphericSignalPpt, atm_N2.atmosphericSignalPpt, 2)} / ${formatTransitDepth(atm_CO2.atmosphericSignalPpt, atm_CO2.atmosphericSignalPpt, 2)}`;
+      document.getElementById("targetAtmSignalOut").innerHTML =
+        `H<sub>2</sub>: ${formatTransitDepth(atm_H2.atmosphericSignalPpt, atm_H2.atmosphericSignalPpt, 2)}<br>N<sub>2</sub>: ${formatTransitDepth(atm_N2.atmosphericSignalPpt, atm_N2.atmosphericSignalPpt, 2)}<br>CO<sub>2</sub>: ${formatTransitDepth(atm_CO2.atmosphericSignalPpt, atm_CO2.atmosphericSignalPpt, 2)}`;
       
       document.getElementById("targetHzOut").textContent = hzMembership;
 
-      const sigmaJitter = parseFloat(document.getElementById("sigmaJitter").value) || 0;
       const massPrecisionPct = parseFloat(document.getElementById("massPrecision").value) || 20;
       const nRVRaw = nRVObservations(kAtTarget, kTarget, sigmaJitter, massPrecisionPct / 100);
       const nRV = Math.max(10, nRVRaw);
       const sigmaEff = Math.sqrt(kTarget * kTarget + sigmaJitter * sigmaJitter).toFixed(2);
       const largeSignalNote = (isFinite(nRVRaw) && nRVRaw < 10) ? " — large signal, readily detected" : "";
       const impossibleNote = (isFinite(nRVRaw) && nRVRaw > 1000) ? " — basically impossible to detect" : "";
-      document.getElementById("targetNrvOut").textContent =
-        isFinite(nRVRaw) ? `${nRV} observations (${massPrecisionPct}% mass precision, σ_eff=${sigmaEff} m/s${largeSignalNote}${impossibleNote})` : "K = 0, N/A";
+      document.getElementById("targetNrvOut").innerHTML =
+        isFinite(nRVRaw) ? `${nRV} observations (${massPrecisionPct}% mass precision, σ<sub>inst</sub>=${kTarget.toFixed(2)} m/s, σ<sub>jitter</sub>=${sigmaJitter.toFixed(2)} m/s, σ<sub>eff</sub>=${sigmaEff} m/s${largeSignalNote}${impossibleNote})` : "K = 0, N/A";
 
       if (teff < 2600 || teff > 7200) {
         warn.textContent = "Warning: Teff is outside nominal Kopparapu calibration range (2600-7200 K).";
@@ -1278,6 +1462,7 @@
       document.getElementById("mstar").value = sample.mstar;
       document.getElementById("mplanet").value = sample.mplanet;
       document.getElementById("kinput").value = sample.kinput;
+      document.getElementById("sigmaJitter").value = sample.sigmaJitter ?? document.getElementById("sigmaJitter").value;
       document.getElementById("albedo").value = sample.albedo;
       document.getElementById("pmin").value = sample.pmin;
       document.getElementById("pmax").value = sample.pmax;
@@ -1294,6 +1479,7 @@
         mplanet: 1.07,
         mplanetUnit: "earth",
         kinput: 0.7,
+        sigmaJitter: 1.5,
         albedo: 0.30,
         punit: "days",
         pmin: 0.3,
@@ -1309,6 +1495,7 @@
         mplanet: 1.0,
         mplanetUnit: "earth",
         kinput: 0.7,
+        sigmaJitter: 1.0,
         albedo: 0.30,
         punit: "days",
         pmin: 0.3,
@@ -1324,6 +1511,7 @@
         mplanet: 1.138,
         mplanetUnit: "jupiter",
         kinput: 0.7,
+        sigmaJitter: 1.0,
         albedo: 0.30,
         punit: "days",
         pmin: 0.3,
@@ -1339,6 +1527,7 @@
         mplanet: 5.6,
         mplanetUnit: "earth",
         kinput: 3.0,
+        sigmaJitter: 2.0,
         albedo: 0.30,
         punit: "days",
         pmin: 0.3,
@@ -1359,6 +1548,7 @@
       mplanet: 1.07,
       mplanetUnit: "earth",
       kinput: 0.7,
+      sigmaJitter: 1.5,
       albedo: 0.30,
       punit: "days",
       pmin: 0.3,
