@@ -458,6 +458,17 @@
       box-shadow: var(--shadow-crisp);
     }
 
+    .ref a {
+      color: #24513f;
+      font-weight: 600;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+
+    .ref a:hover {
+      color: #7e4e2a;
+    }
+
     @media (max-width: 860px) {
       .grid {
         grid-template-columns: repeat(2, minmax(150px, 1fr));
@@ -695,21 +706,21 @@
       3) Equilibrium temperature uses configurable redistribution efficiency ε:
       <i>T</i><sub>eq</sub> = [<i>L</i><sub>star</sub>(1 - <i>A</i>) / (4pi sigma <i>a</i><sup>2</sup>(2 + 2ε))]<sup>1/4</sup>, with ε = 1 for full redistribution and ε = 0 for dayside-only re-radiation.<br />
       <i>Assumption note:</i> <i>A</i> is the Bond albedo (fraction of incident stellar flux reflected at all wavelengths and phase angles). Real planets with inefficient redistribution or strong greenhouse effects can have dayside temperatures higher than this quick-look <i>T</i><sub>eq</sub> estimate.<br />
-      4) Habitable-zone limits are from Kopparapu et al. 2013 (ApJ 765, 131) and updated coefficients from Kopparapu et al. 2014 (ApJL 787, L29), converted to period using Kepler's third law.
-      <br />5) Spectral-type to stellar-mass quick-look mapping uses representative dwarf values from Pecaut and Mamajek 2013 (ApJS 208, 9; main-sequence dwarf parameter table, updated online).
+      4) Habitable-zone limits are from <a href="https://ui.adsabs.harvard.edu/abs/2013ApJ...765..131K/abstract" target="_blank" rel="noopener noreferrer">Kopparapu et al. 2013 (ApJ 765, 131)</a> and updated coefficients from <a href="https://ui.adsabs.harvard.edu/abs/2014ApJ...787L..29K/abstract" target="_blank" rel="noopener noreferrer">Kopparapu et al. 2014 (ApJL 787, L29)</a>, converted to period using Kepler's third law.
+      <br />5) Spectral-type to stellar-mass quick-look mapping uses representative dwarf values from <a href="https://ui.adsabs.harvard.edu/abs/2013ApJS..208....9P/abstract" target="_blank" rel="noopener noreferrer">Pecaut and Mamajek 2013 (ApJS 208, 9)</a> (main-sequence dwarf parameter table, updated online).
       <br />6) Transit depth = (<i>R</i><sub>p</sub>/<i>R</i><sub>star</sub>)<sup>2</sup>. Planet radius <i>R</i><sub>p</sub> inferred from mass using piecewise empirical mass-radius relations:
       <br /><table style="margin-top:8px; border-collapse: collapse; font-size: 0.88rem;">
       <tr style="border-bottom: 1px solid #d8cfbc;"><td style="padding: 4px 8px; font-weight: 600;">Mass range</td><td style="padding: 4px 8px; font-weight: 600;">Relation</td><td style="padding: 4px 8px; font-weight: 600;">Reference</td></tr>
-      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">&lt; 10 M<sub>⊕</sub> (rocky)</td><td style="padding: 4px 8px;"><i>R</i> = 1.02 × <i>M</i><sup>0.28</sup></td><td style="padding: 4px 8px;">Parc et al. 2024 (A&amp;A 688, A59)</td></tr>
-      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">10–138 M<sub>⊕</sub> (volatile-rich)</td><td style="padding: 4px 8px;"><i>R</i> = 0.61 × <i>M</i><sup>0.67</sup></td><td style="padding: 4px 8px;">Parc et al. 2024 (A&amp;A 688, A59)</td></tr>
-      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">138–4100 M<sub>⊕</sub> (giant planets)</td><td style="padding: 4px 8px;"><i>R</i> = 11.9 × <i>M</i><sup>0.01</sup></td><td style="padding: 4px 8px;">Parc et al. 2024 (A&amp;A 688, A59)</td></tr>
-      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">4100–50000 M<sub>⊕</sub> (brown dwarfs)</td><td style="padding: 4px 8px;"><i>R</i> ∝ <i>M</i><sup>0.08</sup> (Baraffe)</td><td style="padding: 4px 8px;">Baraffe et al. model grid</td></tr>
-      <tr><td style="padding: 4px 8px;">&gt; 50000 M<sub>⊕</sub> (M dwarfs)</td><td style="padding: 4px 8px;"><i>R</i> = 1.06 × <i>M</i><sup>0.57</sup></td><td style="padding: 4px 8px;">Pecaut &amp; Mamajek 2013</td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">&lt; 10 M<sub>⊕</sub> (rocky)</td><td style="padding: 4px 8px;"><i>R</i> = 1.02 × <i>M</i><sup>0.28</sup></td><td style="padding: 4px 8px;"><a href="https://ui.adsabs.harvard.edu/abs/2024A%26A...688A..59P/abstract" target="_blank" rel="noopener noreferrer">Parc et al. 2024 (A&amp;A 688, A59)</a></td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">10–138 M<sub>⊕</sub> (volatile-rich)</td><td style="padding: 4px 8px;"><i>R</i> = 0.61 × <i>M</i><sup>0.67</sup></td><td style="padding: 4px 8px;"><a href="https://ui.adsabs.harvard.edu/abs/2024A%26A...688A..59P/abstract" target="_blank" rel="noopener noreferrer">Parc et al. 2024 (A&amp;A 688, A59)</a></td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">138–4100 M<sub>⊕</sub> (giant planets)</td><td style="padding: 4px 8px;"><i>R</i> = 11.9 × <i>M</i><sup>0.01</sup></td><td style="padding: 4px 8px;"><a href="https://ui.adsabs.harvard.edu/abs/2024A%26A...688A..59P/abstract" target="_blank" rel="noopener noreferrer">Parc et al. 2024 (A&amp;A 688, A59)</a></td></tr>
+      <tr style="border-bottom: 1px solid #e7deca;"><td style="padding: 4px 8px;">4100–50000 M<sub>⊕</sub> (brown dwarfs)</td><td style="padding: 4px 8px;"><i>R</i> ∝ <i>M</i><sup>0.08</sup> (Baraffe)</td><td style="padding: 4px 8px;"><a href="https://ui.adsabs.harvard.edu/abs/2003A%26A...402..701B/abstract" target="_blank" rel="noopener noreferrer">Baraffe et al. model grid</a></td></tr>
+      <tr><td style="padding: 4px 8px;">&gt; 50000 M<sub>⊕</sub> (M dwarfs)</td><td style="padding: 4px 8px;"><i>R</i> = 1.06 × <i>M</i><sup>0.57</sup></td><td style="padding: 4px 8px;"><a href="https://ui.adsabs.harvard.edu/abs/2013ApJS..208....9P/abstract" target="_blank" rel="noopener noreferrer">Pecaut &amp; Mamajek 2013</a></td></tr>
       </table>
       <br />Range reflects ~15% natural scatter in M-R relations across different compositions and stellar activity.
       <br /><br />7) Surface gravity: log(<i>g</i>) = log(<i>GM</i>/<i>R</i><sup>2</sup>).
       <br />8) Atmospheric scale height: <i>H</i> = <i>R</i><sub>specific</sub> × <i>T</i><sub>eq</sub> / <i>g</i>, where <i>R</i><sub>specific</sub> = <i>R</i><sub>gas</sub> / <i>M</i><sub>mol</sub> for H₂ (2 g/mol), N₂ (28 g/mol), and CO₂ (44 g/mol).
-      <br />9) Number of RV observations to measure planet mass at fractional precision <i>p</i> (white noise, Cloutier et al. 2018, AJ 156, 82, eq. 18):
+      <br />9) Number of RV observations to measure planet mass at fractional precision <i>p</i> (white noise, <a href="https://ui.adsabs.harvard.edu/abs/2018AJ....156...82C/abstract" target="_blank" rel="noopener noreferrer">Cloutier et al. 2018, AJ 156, 82</a>, eq. 18):
       <i>N</i><sub>RV</sub> = 2 × (σ<sub>eff</sub> / (<i>p</i> × <i>K</i>))<sup>2</sup>, where σ<sub>eff</sub> = √(σ<sub>inst</sub><sup>2</sup> + σ<sub>jitter</sub><sup>2</sup>).
       <br />10) Astrometric semi-amplitude (sky plane): α<sub>*</sub> = (<i>M</i><sub>p</sub> / (<i>M</i><sub>*</sub> + <i>M</i><sub>p</sub>)) × (<i>a</i> / <i>d</i>) in arcsec, with <i>a</i> in au and <i>d</i> in pc.
       <br />11) Atmospheric transmission signal: Total transit depth ≈ geometric depth + (~3 scale heights) × 2<i>H</i>/<i>R</i><sub>p</sub> × (geometric depth), representing additional depth from atmospheric absorption and scattering extending ~3 scale heights above the nominal photosphere.
