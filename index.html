@@ -363,27 +363,58 @@
     }
 
     .detail h2 {
-      margin: 0 0 8px;
-      font-size: 1rem;
+      margin: 0 0 6px;
+      font-size: 0.95rem;
     }
 
-    .detail-grid {
+    .detail-boxes {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 8px 14px;
-      font-size: 0.94rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 8px;
     }
 
-    .detail-label {
+    .detail-box {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.55);
+      border-radius: 10px;
+      padding: 8px 10px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .detail-box h3 {
+      margin: 0 0 4px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #355f52;
+    }
+
+    .detail-box .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 1px 0;
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .detail-box .row .dl {
       color: var(--muted);
       font-weight: 600;
-      margin-right: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    .detail-block {
-      display: block;
-      margin-top: 4px;
-      line-height: 1.45;
+    .detail-box .row .dv {
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .detail-box .multi-line {
+      font-size: 0.8rem;
+      line-height: 1.3;
+      margin-top: 1px;
     }
 
     .chart {
@@ -541,7 +572,8 @@
         </div>
         <div class="field">
           <label for="albedo">Bond albedo <i>A</i></label>
-          <input id="albedo" type="number" step="0.01" min="0" max="0.95" value="0.30" />
+          <input id="albedo" type="range" min="0" max="1" step="0.01" value="0.30" />
+          <span id="albedoOut" class="slider-readout">A = 0.30</span>
         </div>
         <div class="field">
           <label for="redisEff">Heat redistribution efficiency ε</label>
@@ -601,33 +633,52 @@
     </section>
 
     <section class="stats" aria-label="Derived Stellar Quantities">
-      <div class="card"><b>Main-sequence luminosity</b><span id="lstarOut">-</span></div>
-      <div class="card"><b>Main-sequence radius</b><span id="rstarOut">-</span></div>
-      <div class="card"><b>Estimated <i>T</i><sub>eff</sub></b><span id="teffOut">-</span></div>
-      <div class="card"><b>Conservative HZ period</b><span id="hzConsOut">-</span></div>
-      <div class="card"><b>Optimistic HZ period</b><span id="hzOptOut">-</span></div>
+      <div class="card" title="Luminosity estimated from stellar mass using piecewise main-sequence scaling relations."><b>Main-sequence luminosity</b><span id="lstarOut">-</span></div>
+      <div class="card" title="Stellar radius estimated from mass using R ∝ M^0.8 (M < 1 M☉) or R ∝ M^0.57."><b>Main-sequence radius</b><span id="rstarOut">-</span></div>
+      <div class="card" title="Effective temperature derived from L and R via Stefan-Boltzmann: Teff = T☉ × (L/R²)^0.25."><b>Estimated <i>T</i><sub>eff</sub></b><span id="teffOut">-</span></div>
+      <div class="card" title="Period range for the conservative habitable zone (runaway greenhouse to maximum greenhouse) from Kopparapu et al. 2013/2014."><b>Conservative HZ period</b><span id="hzConsOut">-</span></div>
+      <div class="card" title="Period range for the optimistic habitable zone (recent Venus to early Mars) from Kopparapu et al. 2013/2014."><b>Optimistic HZ period</b><span id="hzOptOut">-</span></div>
     </section>
 
     <section class="detail" aria-label="Detailed target-period printout">
       <h2>Detailed printout at target period</h2>
-      <div class="detail-grid">
-        <div><span class="detail-label">Target period:</span><span id="targetPeriodOut">-</span></div>
-        <div><span class="detail-label">Semi-major axis:</span><span id="targetAOut">-</span></div>
-        <div><span class="detail-label">RV semi-amplitude K:</span><span id="targetKOut">-</span></div>
-        <div><span class="detail-label">pRV precision / σ<sub>inst</sub>:</span><span id="targetPrvOut">-</span></div>
-          <div><span class="detail-label">Stellar jitter σ<sub>jitter</sub>:</span><span id="targetJitterOut">-</span></div>
-        <div><span class="detail-label">K / pRV:</span><span id="targetSnrOut">-</span></div>
-        <div><span class="detail-label">Detectability status:</span><span id="targetDetOut">-</span></div>
-        <div><span class="detail-label">Minimum detectable mass:</span><span id="targetMdetOut">-</span></div>
-        <div><span class="detail-label">N<sub>RV</sub> for mass at target precision:</span><span id="targetNrvOut">-</span></div>
-        <div><span class="detail-label">Input planet mass:</span><span id="targetMinOut">-</span></div>
-        <div><span class="detail-label">Equilibrium temperature:</span><span id="targetTeqOut">-</span></div>
-        <div><span class="detail-label">Astrometric semi-amplitude α<sub>*</sub>:</span><span id="targetAstroOut">-</span></div>
-        <div><span class="detail-label">Transit depth (ppt):</span><span id="targetTransitDepthOut">-</span></div>
-        <div><span class="detail-label">Planetary log(g) [cgs]:</span><span id="targetLoggOut">-</span></div>
-        <div><span class="detail-label">Atmosphere Scale height:</span><span id="targetScaleHeightOut" class="detail-block">-</span></div>
-        <div><span class="detail-label">Atm. contribution to transit depth:</span><span id="targetAtmSignalOut" class="detail-block">-</span></div>
-        <div><span class="detail-label">HZ membership:</span><span id="targetHzOut">-</span></div>
+      <div class="detail-boxes">
+
+        <div class="detail-box">
+          <h3>Orbit &amp; Radial Velocity</h3>
+          <div class="row" title="Orbital period selected via the target period input."><span class="dl">Target period</span><span class="dv" id="targetPeriodOut">-</span></div>
+          <div class="row" title="Semi-major axis from Kepler's third law: a = (M★ × P²)^(1/3) in AU."><span class="dl">Semi-major axis</span><span class="dv" id="targetAOut">-</span></div>
+          <div class="row" title="Planet mass entered by the user, in the selected unit."><span class="dl">Input planet mass</span><span class="dv" id="targetMinOut">-</span></div>
+          <div class="row" title="Equilibrium temperature assuming Bond albedo A and redistribution ε: Teq = 278.5 × L^0.25 × ((1−A)/0.7)^0.25 × a^(−0.5) × (4/(2+2ε))^0.25."><span class="dl">T<sub>eq</sub></span><span class="dv" id="targetTeqOut">-</span></div>
+          <div class="row" title="Whether the planet's orbit falls inside the conservative HZ, optimistic HZ, or outside."><span class="dl">HZ membership</span><span class="dv" id="targetHzOut">-</span></div>
+          <div class="row" title="Stellar reflex RV semi-amplitude K = (2πG/P)^(1/3) × Mp / (M★+Mp)^(2/3), assuming circular orbit and sin(i)=1."><span class="dl">RV semi-amplitude K</span><span class="dv" id="targetKOut">-</span></div>
+          <div class="row" title="Instrumental radial-velocity precision entered by the user."><span class="dl">pRV precision σ<sub>inst</sub></span><span class="dv" id="targetPrvOut">-</span></div>
+          <div class="row" title="Stellar activity-induced RV jitter entered by the user."><span class="dl">Stellar jitter σ<sub>jitter</sub></span><span class="dv" id="targetJitterOut">-</span></div>
+          <div class="row" title="Ratio of the planet's RV signal K to the instrumental precision. K/pRV > 1 means the signal exceeds single-measurement noise."><span class="dl">K / pRV</span><span class="dv" id="targetSnrOut">-</span></div>
+          <div class="row" title="Whether K ≥ pRV (detectable) or K < pRV (not detectable in single measurements)."><span class="dl">Detectability</span><span class="dv" id="targetDetOut">-</span></div>
+          <div class="row" title="Minimum planet mass whose RV signal equals the instrumental precision at this period."><span class="dl">Min. detectable mass</span><span class="dv" id="targetMdetOut">-</span></div>
+          <div class="row" title="Number of RV observations to measure the planet mass at the target precision (Cloutier et al. 2018): N = 2 × (σ_eff / (p × K))², with σ_eff = √(σ_inst² + σ_jitter²)."><span class="dl">N<sub>RV</sub> for mass precision</span><span class="dv" id="targetNrvOut">-</span></div>
+        </div>
+
+        <div class="detail-box">
+          <h3>Transit &amp; Atmosphere</h3>
+          <div class="row" title="Transit depth = (Rp/R★)² in ppt. Planet radius from empirical mass-radius relations (Parc et al. 2024). Range reflects ~15% M-R scatter."><span class="dl">Transit depth</span><span class="dv" id="targetTransitDepthOut">-</span></div>
+          <div class="row" title="Surface gravity: log(g) = log(GM/R²) in cgs (cm/s²). Uses planet mass and estimated radius."><span class="dl">Planetary log(g) [cgs]</span><span class="dv" id="targetLoggOut">-</span></div>
+          <div class="row" title="Atmospheric pressure scale height H = R_specific × Teq / g, for H₂ (2 g/mol), N₂ (28 g/mol), and CO₂ (44 g/mol). Lighter molecules → larger H."><span class="dl">Scale height</span><span class="dv multi-line" id="targetScaleHeightOut">-</span></div>
+          <div class="row" title="Additional transit depth from atmospheric absorption extending ~3 scale heights above the solid surface. Total observed depth ≈ geometric + atmospheric signal."><span class="dl">Atm. transit signal</span><span class="dv multi-line" id="targetAtmSignalOut">-</span></div>
+        </div>
+
+        <div class="detail-box">
+          <h3>Astrometry &amp; Imaging</h3>
+          <div class="row" title="Astrometric reflex motion of the star: α★ = (Mp/(M★+Mp)) × (a/d), where d is the distance. Detectable by Gaia for signals ≳ 10–30 µas."><span class="dl">Astrometric α<sub>*</sub></span><span class="dv" id="targetAstroOut">-</span></div>
+          <div class="row" title="Angular separation between star and planet on the sky: θ = a(AU) / d(pc), in mas. Relevant for direct imaging inner working angle."><span class="dl">Orbital separation</span><span class="dv" id="targetSepMasOut">-</span></div>
+          <div class="row" title="Reflected-light planet-to-star flux ratio at full phase (Lambertian sphere): C = Ag × (Rp/a)², where Ag ≈ ⅔ × A_Bond."><span class="dl">Reflected (panchromatic)</span><span class="dv" id="targetContrastReflOut">-</span></div>
+          <div class="row" title="Thermal emission contrast at 1 µm: C = (Rp/R★)² × B(1µm,Teq)/B(1µm,Teff). Dominated by Wien tail — typically negligible."><span class="dl">Thermal 1 µm</span><span class="dv" id="targetContrast1Out">-</span></div>
+          <div class="row" title="Thermal emission contrast at 5 µm: C = (Rp/R★)² × B(5µm,Teq)/B(5µm,Teff). Relevant for JWST/MIRI and future missions."><span class="dl">Thermal 5 µm</span><span class="dv" id="targetContrast5Out">-</span></div>
+          <div class="row" title="Thermal emission contrast at 10 µm: C = (Rp/R★)² × B(10µm,Teq)/B(10µm,Teff). Near the peak of ~300 K blackbody emission."><span class="dl">Thermal 10 µm</span><span class="dv" id="targetContrast10Out">-</span></div>
+          <div class="row" title="Thermal emission contrast at 25 µm: C = (Rp/R★)² × B(25µm,Teq)/B(25µm,Teff). Rayleigh-Jeans regime for warm planets."><span class="dl">Thermal 25 µm</span><span class="dv" id="targetContrast25Out">-</span></div>
+        </div>
+
       </div>
     </section>
 
@@ -675,6 +726,11 @@
       </ul>
       <b>Example:</b> HD 189733 b has a hydrogen-dominated atmosphere. Its geometric transit depth is ~2%; with H₂ atmosphere it rises to ~2.2% (atmospheric signal adds ~0.2 ppt). The same planet with pure CO₂ would show only ~2.02%, barely detectable. This difference is observable in transmission spectroscopy and reveals composition.<br /><br />
       <b>Key insight:</b> Strong atmospheric signals = extended atmospheres = light gases (H/He). Weak or absent signals = compressed atmospheres or no atmosphere = heavy gases or rocky bodies. The three values (H₂, N₂, CO₂) bracket the plausible range for most solar-system-like and exoplanet atmospheres.
+      <br /><br />12) <b>Contrast ratios</b><br />
+      <i>Reflected light (panchromatic):</i> <i>C</i><sub>refl</sub> = <i>A</i><sub>g</sub> &times; (<i>R</i><sub>p</sub> / <i>a</i>)<sup>2</sup> at full phase (opposition), where the geometric albedo <i>A</i><sub>g</sub> &asymp; &frac23; &times; <i>A</i><sub>Bond</sub> (Lambertian sphere approximation).<br />
+      <i>Thermal emission:</i> <i>C</i><sub>therm</sub>(&lambda;) = (<i>R</i><sub>p</sub> / <i>R</i><sub>*</sub>)<sup>2</sup> &times; <i>B</i>(&lambda;, <i>T</i><sub>eq</sub>) / <i>B</i>(&lambda;, <i>T</i><sub>eff</sub>), where <i>B</i>(&lambda;, <i>T</i>) is the Planck function.
+      Contrast values are expressed in scientific notation and in magnitudes: &Delta;mag = &minus;2.5 &times; log<sub>10</sub>(<i>C</i>).
+      <br />13) <b>Orbital separation on sky</b>: &theta; = <i>a</i> (au) / <i>d</i> (pc) in arcsec, converted to mas.
     </section>
   </main>
 
@@ -689,7 +745,12 @@
       DAY: 86400,
       YEAR: 365.25,
       SIGMA: 5.670374419e-8,
-      TSUN: 5772
+      TSUN: 5772,
+      h_PLANCK: 6.62607015e-34,
+      c_LIGHT: 2.99792458e8,
+      kB: 1.380649e-23,
+      REARTH_M: 6.371e6,
+      RSUN_M: 6.957e8
     };
 
     const MASS_UNITS = {
@@ -928,6 +989,38 @@
       return { atmosphericSignalPpt, relativeIncrease };
     }
 
+    function planckRatio(lambda_m, Tnum, Tden) {
+      // Ratio B(lambda, Tnum) / B(lambda, Tden)
+      const x_num = C.h_PLANCK * C.c_LIGHT / (lambda_m * C.kB * Tnum);
+      const x_den = C.h_PLANCK * C.c_LIGHT / (lambda_m * C.kB * Tden);
+      return (Math.exp(x_den) - 1) / (Math.exp(x_num) - 1);
+    }
+
+    function contrastReflected(albedoBond, rplanetEarth, aAu) {
+      // Reflected light contrast at full phase (Lambertian sphere)
+      // Geometric albedo Ag ≈ (2/3) × A_Bond
+      const Ag = (2 / 3) * albedoBond;
+      const Rp_m = rplanetEarth * C.REARTH_M;
+      const a_m = aAu * C.AU;
+      return Ag * (Rp_m / a_m) ** 2;
+    }
+
+    function contrastThermal(lambda_m, Tplanet, Tstar, rplanetEarth, rstarRsun) {
+      // Thermal emission contrast: (Rp/Rstar)^2 × B(λ, Tp) / B(λ, Tstar)
+      const Rp_m = rplanetEarth * C.REARTH_M;
+      const Rstar_m = rstarRsun * C.RSUN_M;
+      const radiusRatio2 = (Rp_m / Rstar_m) ** 2;
+      return radiusRatio2 * planckRatio(lambda_m, Tplanet, Tstar);
+    }
+
+    function formatContrast(contrast) {
+      if (!Number.isFinite(contrast) || contrast <= 0) return "N/A";
+      const dmag = -2.5 * Math.log10(contrast);
+      const exp = Math.floor(Math.log10(contrast));
+      const mantissa = contrast / (10 ** exp);
+      return `${mantissa.toFixed(2)} &times; 10<sup>${exp}</sup> (&Delta;${dmag.toFixed(1)} mag)`;
+    }
+
     function redistributionLabel(redisEff) {
       if (redisEff >= 0.95) return `Full redistribution (ε = ${redisEff.toFixed(2)})`;
       if (redisEff <= 0.05) return `Dayside-only re-radiation (ε = ${redisEff.toFixed(2)})`;
@@ -1048,11 +1141,12 @@
       const adjPMin = periodUnit === "years" ? adjPMinInput * C.YEAR : adjPMinInput;
       const adjPMax = periodUnit === "years" ? adjPMaxInput * C.YEAR : adjPMaxInput;
 
-      if (!(mStar > 0 && mPlanetInput > 0 && kTarget > 0 && albedo >= 0 && albedo < 1 && redisEff >= 0 && redisEff <= 1 && adjPMin > 0 && pTarget > 0)) {
+      if (!(mStar > 0 && mPlanetInput > 0 && kTarget > 0 && albedo >= 0 && albedo <= 1 && redisEff >= 0 && redisEff <= 1 && adjPMin > 0 && pTarget > 0)) {
         return;
       }
 
       document.getElementById("redisEffOut").textContent = redistributionLabel(redisEff);
+      document.getElementById("albedoOut").textContent = `A = ${albedo.toFixed(2)}`;
 
       warn.textContent = "";
 
@@ -1441,14 +1535,35 @@
       
       document.getElementById("targetHzOut").textContent = hzMembership;
 
+      // Orbital separation in mas
+      if (distancePc > 0) {
+        const sepMas = aTargetAu / distancePc * 1000;
+        document.getElementById("targetSepMasOut").textContent =
+          sepMas >= 1 ? `${formatSigFigs(sepMas, 3)} mas` : `${formatSigFigs(sepMas * 1000, 3)} µas`;
+      } else {
+        document.getElementById("targetSepMasOut").textContent = "N/A (no distance)";
+      }
+
+      // Contrast ratios
+      const cRefl = contrastReflected(albedo, rplanetEarth, aTargetAu);
+      document.getElementById("targetContrastReflOut").innerHTML = formatContrast(cRefl);
+
+      const cTh1  = contrastThermal(1e-6,  teqAtTarget, teff, rplanetEarth, rStar);
+      const cTh5  = contrastThermal(5e-6,  teqAtTarget, teff, rplanetEarth, rStar);
+      const cTh10 = contrastThermal(10e-6, teqAtTarget, teff, rplanetEarth, rStar);
+      const cTh25 = contrastThermal(25e-6, teqAtTarget, teff, rplanetEarth, rStar);
+      document.getElementById("targetContrast1Out").innerHTML  = formatContrast(cTh1);
+      document.getElementById("targetContrast5Out").innerHTML  = formatContrast(cTh5);
+      document.getElementById("targetContrast10Out").innerHTML = formatContrast(cTh10);
+      document.getElementById("targetContrast25Out").innerHTML = formatContrast(cTh25);
+
       const massPrecisionPct = parseFloat(document.getElementById("massPrecision").value) || 20;
       const nRVRaw = nRVObservations(kAtTarget, kTarget, sigmaJitter, massPrecisionPct / 100);
       const nRV = Math.max(10, nRVRaw);
-      const sigmaEff = Math.sqrt(kTarget * kTarget + sigmaJitter * sigmaJitter).toFixed(2);
       const largeSignalNote = (isFinite(nRVRaw) && nRVRaw < 10) ? " — large signal, readily detected" : "";
       const impossibleNote = (isFinite(nRVRaw) && nRVRaw > 1000) ? " — basically impossible to detect" : "";
       document.getElementById("targetNrvOut").innerHTML =
-        isFinite(nRVRaw) ? `${nRV} observations (${massPrecisionPct}% mass precision, σ<sub>inst</sub>=${kTarget.toFixed(2)} m/s, σ<sub>jitter</sub>=${sigmaJitter.toFixed(2)} m/s, σ<sub>eff</sub>=${sigmaEff} m/s${largeSignalNote}${impossibleNote})` : "K = 0, N/A";
+        isFinite(nRVRaw) ? `${nRV} observations${largeSignalNote}${impossibleNote}` : "K = 0, N/A";
 
       if (teff < 2600 || teff > 7200) {
         warn.textContent = "Warning: Teff is outside nominal Kopparapu calibration range (2600-7200 K).";
@@ -1458,10 +1573,19 @@
     }
 
     document.getElementById("updateBtn").addEventListener("click", update);
-    ["mplanet", "kinput", "sigmaJitter", "massPrecision", "albedo", "redisEff", "pmin", "pmax", "ptarget", "distancePc", "parallaxMas"].forEach((id) => {
+    ["mplanet", "kinput", "sigmaJitter", "massPrecision", "pmin", "pmax", "ptarget", "distancePc", "parallaxMas"].forEach((id) => {
       const el = document.getElementById(id);
       el.addEventListener("change", update);
       el.addEventListener("input", update);
+    });
+    // Sliders: update readout live on input, full recompute only on change (mouseup)
+    ["albedo", "redisEff"].forEach((id) => {
+      const el = document.getElementById(id);
+      el.addEventListener("input", () => {
+        if (id === "albedo") document.getElementById("albedoOut").textContent = `A = ${Number(el.value).toFixed(2)}`;
+        if (id === "redisEff") document.getElementById("redisEffOut").textContent = redistributionLabel(Number(el.value));
+      });
+      el.addEventListener("change", update);
     });
     document.getElementById("mstar").addEventListener("change", () => {
       setRadioValue("stellarType", "custom");
