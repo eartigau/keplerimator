@@ -56,6 +56,41 @@
       padding: 28px 20px 48px;
     }
 
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .lang-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 251, 242, 0.82);
+      box-shadow: var(--shadow-crisp);
+    }
+
+    .lang-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .lang-btn.is-active {
+      background: linear-gradient(180deg, #3f8b74 0%, var(--accent) 100%);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(47, 109, 91, 0.22);
+    }
+
     h1 {
       margin: 0;
       font-size: clamp(1.8rem, 1.5rem + 1.8vw, 3rem);
@@ -151,6 +186,53 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+    }
+
+    .field.lookup-field {
+      gap: 6px;
+    }
+
+    .lookup-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .lookup-row input {
+      flex: 1 1 180px;
+      min-width: 0;
+    }
+
+    .lookup-btn {
+      padding-inline: 14px;
+      white-space: nowrap;
+    }
+
+    .lookup-status {
+      min-height: 1.25rem;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.35;
+    }
+
+    .lookup-status.is-error {
+      color: #9b2c2c;
+    }
+
+    .lookup-status.is-ok {
+      color: #24513f;
+    }
+
+    .provenance-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.4;
+      padding: 8px 10px;
+      border: 1px solid color-mix(in srgb, var(--line) 88%, #ffffff);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.48);
     }
 
     .field.mass-unit {
@@ -522,9 +604,16 @@
 </head>
 <body>
   <main class="wrap">
+    <div class="topbar">
+      <div class="lang-toggle" aria-label="Language selector">
+        <button class="lang-btn" id="langEnBtn" type="button" data-lang="en">EN</button>
+        <button class="lang-btn" id="langFrBtn" type="button" data-lang="fr">FR</button>
+      </div>
+    </div>
+
     <section class="hero" aria-label="Exoplanet mission header">
-      <h1>Keplerian and Transit Guestimator</h1>
-      <p class="subtitle">
+      <h1 id="pageTitle">Keplerian and Transit Guestimator</h1>
+      <p class="subtitle" id="pageSubtitle">
         Precision-RV helper for quick-order detectability and climate context. Enter stellar and planetary masses,
         then explore stellar reflex semi-amplitude <i>K</i> and equilibrium temperature as functions of orbital period.
         <strong>Designed for exoplanet follow-up triage.</strong>
@@ -532,7 +621,7 @@
     </section>
 
     <section class="samples" aria-label="Sample systems">
-      <span class="samples-title">Sample systems</span>
+      <span class="samples-title" id="samplesTitle">Sample systems</span>
       <button class="sample-btn" id="sampleProxima" type="button">Proxima b + NIRPS (0.7 m/s)</button>
       <button class="sample-btn" id="sampleEarth" type="button">Earth + HARPS (0.7 m/s)</button>
       <button class="sample-btn" id="sampleHD189733" type="button">HD189733 + HARPS (0.7 m/s)</button>
@@ -541,23 +630,31 @@
 
     <section class="grid" aria-label="Inputs">
       <div class="input-group" aria-label="Stellar properties">
-        <h2>Stellar properties</h2>
+        <h2 id="stellarPropertiesTitle">Stellar properties</h2>
+        <div class="field lookup-field">
+          <label for="starName" id="starNameLabel">Star name</label>
+          <div class="lookup-row">
+            <input id="starName" type="text" placeholder="e.g. Proxima Cen" />
+            <button class="lookup-btn" id="lookupStarBtn" type="button">Fetch star</button>
+          </div>
+          <span class="lookup-status" id="lookupStatus">Named-star lookup uses SIMBAD and Gaia DR3.</span>
+        </div>
         <div class="field">
-          <label for="mstar">Stellar mass (<i>M</i><sub>sun</sub>)</label>
+          <label for="mstar" id="mstarLabel">Stellar mass (<i>M</i><sub>sun</sub>)</label>
           <input id="mstar" type="number" step="0.01" min="0.08" max="3.0" value="0.5" />
         </div>
         <div class="field">
-          <label for="distancePc">Distance (pc)</label>
+          <label for="distancePc" id="distanceLabel">Distance (pc)</label>
           <input id="distancePc" type="number" step="0.01" min="0.01" value="10" />
         </div>
         <div class="field">
-          <label for="parallaxMas">Parallax (mas)</label>
+          <label for="parallaxMas" id="parallaxLabel">Parallax (mas)</label>
           <input id="parallaxMas" type="number" step="0.01" min="0.01" value="100" />
         </div>
         <div class="field">
-          <label>Stellar spectral type</label>
+          <label id="stellarTypeLabel">Stellar spectral type</label>
           <div class="choice-row" id="stellarTypeGroup" role="radiogroup" aria-label="Stellar spectral type">
-            <label class="choice"><input type="radio" name="stellarType" value="custom" checked />Custom</label>
+            <label class="choice"><input type="radio" name="stellarType" value="custom" checked /><span id="stellarTypeCustomLabel">Custom</span></label>
             <label class="choice"><input type="radio" name="stellarType" value="G2V" />G2V</label>
             <label class="choice"><input type="radio" name="stellarType" value="K5V" />K5V</label>
             <label class="choice"><input type="radio" name="stellarType" value="M0V" />M0V</label>
@@ -568,69 +665,69 @@
       </div>
 
       <div class="input-group" aria-label="Planet properties">
-        <h2>Planet properties</h2>
+        <h2 id="planetPropertiesTitle">Planet properties</h2>
         <div class="field mass-unit">
-          <label>Planet mass unit</label>
+          <label id="planetMassUnitLabel">Planet mass unit</label>
           <div class="choice-row" id="mplanetUnitGroup" role="radiogroup" aria-label="Planet mass unit">
-            <label class="choice"><input type="radio" name="mplanetUnit" value="earth" checked />Earth</label>
-            <label class="choice"><input type="radio" name="mplanetUnit" value="neptune" />Neptune</label>
-            <label class="choice"><input type="radio" name="mplanetUnit" value="jupiter" />Jupiter</label>
+            <label class="choice"><input type="radio" name="mplanetUnit" value="earth" checked /><span id="planetUnitEarthLabel">Earth</span></label>
+            <label class="choice"><input type="radio" name="mplanetUnit" value="neptune" /><span id="planetUnitNeptuneLabel">Neptune</span></label>
+            <label class="choice"><input type="radio" name="mplanetUnit" value="jupiter" /><span id="planetUnitJupiterLabel">Jupiter</span></label>
           </div>
         </div>
         <div class="field">
-          <label for="mplanet">Planet mass value</label>
+          <label for="mplanet" id="planetMassValueLabel">Planet mass value</label>
           <input id="mplanet" type="number" step="0.01" min="0.01" value="0.7" />
         </div>
         <div class="field">
-          <label for="albedo">Bond albedo <i>A</i></label>
+          <label for="albedo" id="albedoLabel">Bond albedo <i>A</i></label>
           <input id="albedo" type="range" min="0" max="1" step="0.01" value="0.30" />
           <span id="albedoOut" class="slider-readout">A = 0.30</span>
         </div>
         <div class="field">
-          <label for="redisEff">Heat redistribution efficiency ε</label>
+          <label for="redisEff" id="redistributionLabel">Heat redistribution efficiency ε</label>
           <input id="redisEff" type="range" min="0" max="1" step="0.05" value="1" />
           <span id="redisEffOut" class="slider-readout">Full redistribution (ε = 1.00)</span>
         </div>
       </div>
 
       <div class="input-group" aria-label="RV assumptions">
-        <h2>RV assumptions</h2>
+        <h2 id="rvAssumptionsTitle">RV assumptions</h2>
         <div class="field">
-          <label for="kinput">pRV precision / σ<sub>inst</sub> (m/s)</label>
+          <label for="kinput" id="prvPrecisionLabel">pRV precision / σ<sub>inst</sub> (m/s)</label>
           <input id="kinput" type="number" step="0.01" min="0.01" value="1.0" />
         </div>
         <div class="field">
-          <label for="sigmaJitter">Stellar jitter σ<sub>jitter</sub> (m/s)</label>
+          <label for="sigmaJitter" id="stellarJitterLabel">Stellar jitter σ<sub>jitter</sub> (m/s)</label>
           <input id="sigmaJitter" type="number" step="0.1" min="0" value="2.0" />
         </div>
         <div class="field">
-          <label for="massPrecision">Target mass precision (%)</label>
+          <label for="massPrecision" id="massPrecisionLabel">Target mass precision (%)</label>
           <input id="massPrecision" type="number" step="1" min="1" max="100" value="10" />
         </div>
       </div>
 
       <div class="input-group" aria-label="Period sampling">
-        <h2>Period sampling</h2>
+        <h2 id="periodSamplingTitle">Period sampling</h2>
         <div class="field">
-          <label for="punit">Period unit</label>
+          <label for="punit" id="periodUnitLabel">Period unit</label>
           <div class="choice-row" id="punitGroup" role="radiogroup" aria-label="Period unit">
-            <label class="choice"><input type="radio" name="punit" value="days" checked />days</label>
-            <label class="choice"><input type="radio" name="punit" value="years" />years</label>
+            <label class="choice"><input type="radio" name="punit" value="days" checked /><span id="periodUnitDaysLabel">days</span></label>
+            <label class="choice"><input type="radio" name="punit" value="years" /><span id="periodUnitYearsLabel">years</span></label>
           </div>
         </div>
         <div class="field period-range">
-          <label>Period min / target / max</label>
+          <label id="periodRangeLabel">Period min / target / max</label>
           <div class="inline-periods">
             <div class="inline-period">
-              <label for="pmin">Min</label>
+              <label for="pmin" id="periodMinLabel">Min</label>
               <input id="pmin" type="number" step="0.01" min="0.001" value="0.3" />
             </div>
             <div class="inline-period">
-              <label for="ptarget">Target</label>
+              <label for="ptarget" id="periodTargetLabel">Target</label>
               <input id="ptarget" type="number" step="0.01" min="0.001" value="10" />
             </div>
             <div class="inline-period">
-              <label for="pmax">Max</label>
+              <label for="pmax" id="periodMaxLabel">Max</label>
               <input id="pmax" type="number" step="0.1" min="0.01" value="3000" />
             </div>
           </div>
@@ -644,50 +741,51 @@
     </section>
 
     <section class="stats" aria-label="Derived Stellar Quantities">
-      <div class="card" title="Luminosity estimated from stellar mass using piecewise main-sequence scaling relations."><b>Main-sequence luminosity</b><span id="lstarOut">-</span></div>
-      <div class="card" title="Stellar radius estimated from mass using R ∝ M^0.8 (M < 1 M☉) or R ∝ M^0.57."><b>Main-sequence radius</b><span id="rstarOut">-</span></div>
-      <div class="card" title="Effective temperature derived from L and R via Stefan-Boltzmann: Teff = T☉ × (L/R²)^0.25."><b>Estimated <i>T</i><sub>eff</sub></b><span id="teffOut">-</span></div>
-      <div class="card" title="Period range for the conservative habitable zone (runaway greenhouse to maximum greenhouse) from Kopparapu et al. 2013/2014."><b>Conservative HZ period</b><span id="hzConsOut">-</span></div>
-      <div class="card" title="Period range for the optimistic habitable zone (recent Venus to early Mars) from Kopparapu et al. 2013/2014."><b>Optimistic HZ period</b><span id="hzOptOut">-</span></div>
+      <div class="card" title="Luminosity estimated from stellar mass using piecewise main-sequence scaling relations."><b id="luminosityCardLabel">Stellar luminosity</b><span id="lstarOut">-</span></div>
+      <div class="card" title="Stellar radius estimated from mass using R ∝ M^0.8 (M < 1 M☉) or R ∝ M^0.57."><b id="radiusCardLabel">Stellar radius</b><span id="rstarOut">-</span></div>
+      <div class="card" title="Effective temperature derived from L and R via Stefan-Boltzmann: Teff = T☉ × (L/R²)^0.25."><b id="teffCardLabel">Stellar <i>T</i><sub>eff</sub></b><span id="teffOut">-</span></div>
+      <div class="card" title="Period range for the conservative habitable zone (runaway greenhouse to maximum greenhouse) from Kopparapu et al. 2013/2014."><b id="hzConsCardLabel">Conservative HZ period</b><span id="hzConsOut">-</span></div>
+      <div class="card" title="Period range for the optimistic habitable zone (recent Venus to early Mars) from Kopparapu et al. 2013/2014."><b id="hzOptCardLabel">Optimistic HZ period</b><span id="hzOptOut">-</span></div>
     </section>
+    <section class="provenance-note" id="stellarSourceNote">Sources: custom/manual values and main-sequence fallback relations.</section>
 
     <section class="detail" aria-label="Detailed target-period printout">
-      <h2>Detailed printout at target period</h2>
+      <h2 id="detailTitle">Detailed printout at target period</h2>
       <div class="detail-boxes">
 
         <div class="detail-box">
-          <h3>Orbit &amp; Radial Velocity</h3>
-          <div class="row" title="Orbital period selected via the target period input."><span class="dl">Target period</span><span class="dv" id="targetPeriodOut">-</span></div>
-          <div class="row" title="Semi-major axis from Kepler's third law: a = (M★ × P²)^(1/3) in AU."><span class="dl">Semi-major axis</span><span class="dv" id="targetAOut">-</span></div>
-          <div class="row" title="Planet mass entered by the user, in the selected unit."><span class="dl">Input planet mass</span><span class="dv" id="targetMinOut">-</span></div>
-          <div class="row" title="Equilibrium temperature assuming Bond albedo A and redistribution ε: Teq = 278.5 × L^0.25 × ((1−A)/0.7)^0.25 × a^(−0.5) × (4/(2+2ε))^0.25."><span class="dl">T<sub>eq</sub></span><span class="dv" id="targetTeqOut">-</span></div>
-          <div class="row" title="Whether the planet's orbit falls inside the conservative HZ, optimistic HZ, or outside."><span class="dl">HZ membership</span><span class="dv" id="targetHzOut">-</span></div>
-          <div class="row" title="Stellar reflex RV semi-amplitude K = (2πG/P)^(1/3) × Mp / (M★+Mp)^(2/3), assuming circular orbit and sin(i)=1."><span class="dl">RV semi-amplitude K</span><span class="dv" id="targetKOut">-</span></div>
-          <div class="row" title="Instrumental radial-velocity precision entered by the user."><span class="dl">pRV precision σ<sub>inst</sub></span><span class="dv" id="targetPrvOut">-</span></div>
-          <div class="row" title="Stellar activity-induced RV jitter entered by the user."><span class="dl">Stellar jitter σ<sub>jitter</sub></span><span class="dv" id="targetJitterOut">-</span></div>
-          <div class="row" title="Ratio of the planet's RV signal K to the instrumental precision. K/pRV > 1 means the signal exceeds single-measurement noise."><span class="dl">K / pRV</span><span class="dv" id="targetSnrOut">-</span></div>
-          <div class="row" title="Whether K ≥ pRV (detectable) or K < pRV (not detectable in single measurements)."><span class="dl">Detectability</span><span class="dv" id="targetDetOut">-</span></div>
-          <div class="row" title="Minimum planet mass whose RV signal equals the instrumental precision at this period."><span class="dl">Min. detectable mass</span><span class="dv" id="targetMdetOut">-</span></div>
-          <div class="row" title="Number of RV observations to measure the planet mass at the target precision (Cloutier et al. 2018): N = 2 × (σ_eff / (p × K))², with σ_eff = √(σ_inst² + σ_jitter²)."><span class="dl">N<sub>RV</sub> for mass precision</span><span class="dv" id="targetNrvOut">-</span></div>
+          <h3 id="orbitBoxTitle">Orbit &amp; Radial Velocity</h3>
+          <div class="row" title="Orbital period selected via the target period input."><span class="dl" id="targetPeriodLabel">Target period</span><span class="dv" id="targetPeriodOut">-</span></div>
+          <div class="row" title="Semi-major axis from Kepler's third law: a = (M★ × P²)^(1/3) in AU."><span class="dl" id="targetSemiMajorLabel">Semi-major axis</span><span class="dv" id="targetAOut">-</span></div>
+          <div class="row" title="Planet mass entered by the user, in the selected unit."><span class="dl" id="targetPlanetMassLabel">Input planet mass</span><span class="dv" id="targetMinOut">-</span></div>
+          <div class="row" title="Equilibrium temperature assuming Bond albedo A and redistribution ε: Teq = 278.5 × L^0.25 × ((1−A)/0.7)^0.25 × a^(−0.5) × (4/(2+2ε))^0.25."><span class="dl" id="targetTeqLabel">T<sub>eq</sub></span><span class="dv" id="targetTeqOut">-</span></div>
+          <div class="row" title="Whether the planet's orbit falls inside the conservative HZ, optimistic HZ, or outside."><span class="dl" id="targetHzLabel">HZ membership</span><span class="dv" id="targetHzOut">-</span></div>
+          <div class="row" title="Stellar reflex RV semi-amplitude K = (2πG/P)^(1/3) × Mp / (M★+Mp)^(2/3), assuming circular orbit and sin(i)=1."><span class="dl" id="targetKLabel">RV semi-amplitude K</span><span class="dv" id="targetKOut">-</span></div>
+          <div class="row" title="Instrumental radial-velocity precision entered by the user."><span class="dl" id="targetPrvLabel">pRV precision σ<sub>inst</sub></span><span class="dv" id="targetPrvOut">-</span></div>
+          <div class="row" title="Stellar activity-induced RV jitter entered by the user."><span class="dl" id="targetJitterLabel">Stellar jitter σ<sub>jitter</sub></span><span class="dv" id="targetJitterOut">-</span></div>
+          <div class="row" title="Ratio of the planet's RV signal K to the instrumental precision. K/pRV > 1 means the signal exceeds single-measurement noise."><span class="dl" id="targetSnrLabel">K / pRV</span><span class="dv" id="targetSnrOut">-</span></div>
+          <div class="row" title="Whether K ≥ pRV (detectable) or K < pRV (not detectable in single measurements)."><span class="dl" id="targetDetectabilityLabel">Detectability</span><span class="dv" id="targetDetOut">-</span></div>
+          <div class="row" title="Minimum planet mass whose RV signal equals the instrumental precision at this period."><span class="dl" id="targetMinDetectableLabel">Min. detectable mass</span><span class="dv" id="targetMdetOut">-</span></div>
+          <div class="row" title="Number of RV observations to measure the planet mass at the target precision (Cloutier et al. 2018): N = 2 × (σ_eff / (p × K))², with σ_eff = √(σ_inst² + σ_jitter²)."><span class="dl" id="targetNrvLabel">N<sub>RV</sub> for mass precision</span><span class="dv" id="targetNrvOut">-</span></div>
         </div>
 
         <div class="detail-box">
-          <h3>Transit &amp; Atmosphere</h3>
-          <div class="row" title="Transit depth = (Rp/R★)² in ppt. Planet radius from empirical mass-radius relations (Parc et al. 2024). Range reflects ~15% M-R scatter."><span class="dl">Transit depth</span><span class="dv" id="targetTransitDepthOut">-</span></div>
-          <div class="row" title="Surface gravity: log(g) = log(GM/R²) in cgs (cm/s²). Uses planet mass and estimated radius."><span class="dl">Planetary log(g) [cgs]</span><span class="dv" id="targetLoggOut">-</span></div>
-          <div class="row" title="Atmospheric pressure scale height H = R_specific × Teq / g, for H₂ (2 g/mol), N₂ (28 g/mol), and CO₂ (44 g/mol). Lighter molecules → larger H."><span class="dl">Scale height</span><span class="dv multi-line" id="targetScaleHeightOut">-</span></div>
-          <div class="row" title="Additional transit depth from atmospheric absorption extending ~3 scale heights above the solid surface. Total observed depth ≈ geometric + atmospheric signal."><span class="dl">Atm. transit signal</span><span class="dv multi-line" id="targetAtmSignalOut">-</span></div>
+          <h3 id="transitBoxTitle">Transit &amp; Atmosphere</h3>
+          <div class="row" title="Transit depth = (Rp/R★)² in ppt. Planet radius from empirical mass-radius relations (Parc et al. 2024). Range reflects ~15% M-R scatter."><span class="dl" id="targetTransitDepthLabel">Transit depth</span><span class="dv" id="targetTransitDepthOut">-</span></div>
+          <div class="row" title="Surface gravity: log(g) = log(GM/R²) in cgs (cm/s²). Uses planet mass and estimated radius."><span class="dl" id="targetLoggLabel">Planetary log(g) [cgs]</span><span class="dv" id="targetLoggOut">-</span></div>
+          <div class="row" title="Atmospheric pressure scale height H = R_specific × Teq / g, for H₂ (2 g/mol), N₂ (28 g/mol), and CO₂ (44 g/mol). Lighter molecules → larger H."><span class="dl" id="targetScaleHeightLabel">Scale height</span><span class="dv multi-line" id="targetScaleHeightOut">-</span></div>
+          <div class="row" title="Additional transit depth from atmospheric absorption extending ~3 scale heights above the solid surface. Total observed depth ≈ geometric + atmospheric signal."><span class="dl" id="targetAtmSignalLabel">Atm. transit signal</span><span class="dv multi-line" id="targetAtmSignalOut">-</span></div>
         </div>
 
         <div class="detail-box">
-          <h3>Astrometry &amp; Imaging</h3>
-          <div class="row" title="Astrometric reflex motion of the star: α★ = (Mp/(M★+Mp)) × (a/d), where d is the distance. Detectable by Gaia for signals ≳ 10–30 µas."><span class="dl">Astrometric α<sub>*</sub></span><span class="dv" id="targetAstroOut">-</span></div>
-          <div class="row" title="Angular separation between star and planet on the sky: θ = a(AU) / d(pc), in mas. Relevant for direct imaging inner working angle."><span class="dl">Orbital separation</span><span class="dv" id="targetSepMasOut">-</span></div>
-          <div class="row" title="Reflected-light planet-to-star flux ratio at full phase (Lambertian sphere): C = Ag × (Rp/a)², where Ag ≈ ⅔ × A_Bond."><span class="dl">Reflected (panchromatic)</span><span class="dv" id="targetContrastReflOut">-</span></div>
-          <div class="row" title="Thermal emission contrast at 1 µm: C = (Rp/R★)² × B(1µm,Teq)/B(1µm,Teff). Dominated by Wien tail — typically negligible."><span class="dl">Thermal 1 µm</span><span class="dv" id="targetContrast1Out">-</span></div>
-          <div class="row" title="Thermal emission contrast at 5 µm: C = (Rp/R★)² × B(5µm,Teq)/B(5µm,Teff). Relevant for JWST/MIRI and future missions."><span class="dl">Thermal 5 µm</span><span class="dv" id="targetContrast5Out">-</span></div>
-          <div class="row" title="Thermal emission contrast at 10 µm: C = (Rp/R★)² × B(10µm,Teq)/B(10µm,Teff). Near the peak of ~300 K blackbody emission."><span class="dl">Thermal 10 µm</span><span class="dv" id="targetContrast10Out">-</span></div>
-          <div class="row" title="Thermal emission contrast at 25 µm: C = (Rp/R★)² × B(25µm,Teq)/B(25µm,Teff). Rayleigh-Jeans regime for warm planets."><span class="dl">Thermal 25 µm</span><span class="dv" id="targetContrast25Out">-</span></div>
+          <h3 id="astroBoxTitle">Astrometry &amp; Imaging</h3>
+          <div class="row" title="Astrometric reflex motion of the star: α★ = (Mp/(M★+Mp)) × (a/d), where d is the distance. Detectable by Gaia for signals ≳ 10–30 µas."><span class="dl" id="targetAstroLabel">Astrometric α<sub>*</sub></span><span class="dv" id="targetAstroOut">-</span></div>
+          <div class="row" title="Angular separation between star and planet on the sky: θ = a(AU) / d(pc), in mas. Relevant for direct imaging inner working angle."><span class="dl" id="targetSeparationLabel">Orbital separation</span><span class="dv" id="targetSepMasOut">-</span></div>
+          <div class="row" title="Reflected-light planet-to-star flux ratio at full phase (Lambertian sphere): C = Ag × (Rp/a)², where Ag ≈ ⅔ × A_Bond."><span class="dl" id="targetReflectedLabel">Reflected (panchromatic)</span><span class="dv" id="targetContrastReflOut">-</span></div>
+          <div class="row" title="Thermal emission contrast at 1 µm: C = (Rp/R★)² × B(1µm,Teq)/B(1µm,Teff). Dominated by Wien tail — typically negligible."><span class="dl" id="targetThermal1Label">Thermal 1 µm</span><span class="dv" id="targetContrast1Out">-</span></div>
+          <div class="row" title="Thermal emission contrast at 5 µm: C = (Rp/R★)² × B(5µm,Teq)/B(5µm,Teff). Relevant for JWST/MIRI and future missions."><span class="dl" id="targetThermal5Label">Thermal 5 µm</span><span class="dv" id="targetContrast5Out">-</span></div>
+          <div class="row" title="Thermal emission contrast at 10 µm: C = (Rp/R★)² × B(10µm,Teq)/B(10µm,Teff). Near the peak of ~300 K blackbody emission."><span class="dl" id="targetThermal10Label">Thermal 10 µm</span><span class="dv" id="targetContrast10Out">-</span></div>
+          <div class="row" title="Thermal emission contrast at 25 µm: C = (Rp/R★)² × B(25µm,Teq)/B(25µm,Teff). Rayleigh-Jeans regime for warm planets."><span class="dl" id="targetThermal25Label">Thermal 25 µm</span><span class="dv" id="targetContrast25Out">-</span></div>
         </div>
 
       </div>
@@ -698,7 +796,7 @@
     <section class="chart" id="plotMass" aria-label="Mass inversion plot"></section>
 
     <section class="ref">
-      <b>Methods and references</b><br />
+      <b id="methodsTitle">Methods and references</b><br />
       1) Reflex semi-amplitude assumes circular orbit and sin(i) = 1:
       <i>K</i> = [(2piG)/<i>P</i>]<sup>1/3</sup> * <i>M</i><sub>p</sub> / (<i>M</i><sub>star</sub> + <i>M</i><sub>p</sub>)<sup>2/3</sup>.<br />
       2) Main-sequence scaling uses piecewise <i>L</i><sub>star</sub>(<i>M</i><sub>star</sub>) and
@@ -777,6 +875,791 @@
       M4V: 0.21,
       M8V: 0.08
     };
+
+    const AFGK_SEQ_BP_RP_TOL = 0.20;
+    const AFGK_SEQ_MG_TOL = 1.00;
+    const FGK_BP_RP_MIN = -0.05;
+    const FGK_BP_RP_MAX = 1.95;
+    const FGK_M_G_MIN = 0.5;
+    const FGK_M_G_MAX = 7.5;
+    const AFGK_EMPIRICAL_SEQUENCE = [
+      { spt: "A0V", bp_rp: -0.04, m_g: 1.00, teff: 9700.0, radius: 2.193, mass: 2.18 },
+      { spt: "A1V", bp_rp: 0.01, m_g: 1.16, teff: 9300.0, radius: 2.136, mass: 2.05 },
+      { spt: "A2V", bp_rp: 0.07, m_g: 1.35, teff: 8800.0, radius: 2.117, mass: 1.98 },
+      { spt: "A3V", bp_rp: 0.11, m_g: 1.69, teff: 8600.0, radius: 1.861, mass: 1.86 },
+      { spt: "A5V", bp_rp: 0.19, m_g: 1.98, teff: 8100.0, radius: 1.785, mass: 1.88 },
+      { spt: "A7V", bp_rp: 0.26, m_g: 2.19, teff: 7760.0, radius: 1.750, mass: 1.77 },
+      { spt: "A9V", bp_rp: 0.33, m_g: 2.37, teff: 7400.0, radius: 1.747, mass: 1.75 },
+      { spt: "F0V", bp_rp: 0.377, m_g: 2.51, teff: 7220.0, radius: 1.728, mass: 1.61 },
+      { spt: "F2V", bp_rp: 0.490, m_g: 2.89, teff: 6820.0, radius: 1.622, mass: 1.46 },
+      { spt: "F5V", bp_rp: 0.587, m_g: 3.26, teff: 6550.0, radius: 1.473, mass: 1.33 },
+      { spt: "F8V", bp_rp: 0.694, m_g: 3.90, teff: 6180.0, radius: 1.221, mass: 1.18 },
+      { spt: "G0V", bp_rp: 0.784, m_g: 4.33, teff: 5930.0, radius: 1.100, mass: 1.06 },
+      { spt: "G2V", bp_rp: 0.823, m_g: 4.64, teff: 5770.0, radius: 1.012, mass: 1.00 },
+      { spt: "G5V", bp_rp: 0.850, m_g: 4.80, teff: 5660.0, radius: 0.977, mass: 0.98 },
+      { spt: "G8V", bp_rp: 0.900, m_g: 5.10, teff: 5480.0, radius: 0.914, mass: 0.94 },
+      { spt: "K0V", bp_rp: 0.983, m_g: 5.55, teff: 5270.0, radius: 0.813, mass: 0.88 },
+      { spt: "K1V", bp_rp: 1.010, m_g: 5.65, teff: 5170.0, radius: 0.797, mass: 0.86 },
+      { spt: "K2V", bp_rp: 1.100, m_g: 5.83, teff: 5100.0, radius: 0.783, mass: 0.82 },
+      { spt: "K3V", bp_rp: 1.210, m_g: 6.20, teff: 4830.0, radius: 0.755, mass: 0.78 },
+      { spt: "K4V", bp_rp: 1.340, m_g: 6.53, teff: 4600.0, radius: 0.713, mass: 0.73 },
+      { spt: "K5V", bp_rp: 1.430, m_g: 6.83, teff: 4440.0, radius: 0.701, mass: 0.70 },
+      { spt: "K7V", bp_rp: 1.700, m_g: 7.57, teff: 4100.0, radius: 0.630, mass: 0.64 }
+    ];
+
+    const SIMBAD_TAP = "https://simbad.cds.unistra.fr/simbad/sim-tap/sync";
+    const VIZIER_TAP = "https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync";
+    const LOOKUP_CACHE_PREFIX = "keplerimator_star_lookup_v3_";
+    const LOOKUP_CACHE_MAX_AGE_MS = 7 * 24 * 3600 * 1000;
+
+    const I18N = {
+      en: {
+        documentTitle: "Keplerian and Transit Guestimator",
+        pageTitle: "Keplerian and Transit Guestimator",
+        pageSubtitle: "Precision-RV helper for quick-order detectability and climate context. Enter stellar and planetary masses, then explore stellar reflex semi-amplitude <i>K</i> and equilibrium temperature as functions of orbital period. <strong>Designed for exoplanet follow-up triage.</strong>",
+        samplesTitle: "Sample systems",
+        sampleEarth: "Earth + HARPS (0.7 m/s)",
+        stellarPropertiesTitle: "Stellar properties",
+        starNameLabel: "Star name",
+        starNamePlaceholder: "e.g. Proxima Cen",
+        lookupStarBtn: "Fetch star",
+        lookupIdle: "Named-star lookup uses SIMBAD and Gaia DR3.",
+        mstarLabel: "Stellar mass (<i>M</i><sub>sun</sub>)",
+        distanceLabel: "Distance (pc)",
+        parallaxLabel: "Parallax (mas)",
+        stellarTypeLabel: "Stellar spectral type",
+        stellarTypeCustomLabel: "Custom",
+        planetPropertiesTitle: "Planet properties",
+        planetMassUnitLabel: "Planet mass unit",
+        planetUnitEarthLabel: "Earth",
+        planetUnitNeptuneLabel: "Neptune",
+        planetUnitJupiterLabel: "Jupiter",
+        planetMassValueLabel: "Planet mass value",
+        albedoLabel: "Bond albedo <i>A</i>",
+        redistributionLabel: "Heat redistribution efficiency ε",
+        rvAssumptionsTitle: "RV assumptions",
+        prvPrecisionLabel: "pRV precision / σ<sub>inst</sub> (m/s)",
+        stellarJitterLabel: "Stellar jitter σ<sub>jitter</sub> (m/s)",
+        massPrecisionLabel: "Target mass precision (%)",
+        periodSamplingTitle: "Period sampling",
+        periodUnitLabel: "Period unit",
+        periodUnitDaysLabel: "days",
+        periodUnitYearsLabel: "years",
+        periodRangeLabel: "Period min / target / max",
+        periodMinLabel: "Min",
+        periodTargetLabel: "Target",
+        periodMaxLabel: "Max",
+        updateBtn: "Update Curves",
+        luminosityCardLabel: "Stellar luminosity",
+        radiusCardLabel: "Stellar radius",
+        teffCardLabel: "Stellar <i>T</i><sub>eff</sub>",
+        hzConsCardLabel: "Conservative HZ period",
+        hzOptCardLabel: "Optimistic HZ period",
+        detailTitle: "Detailed printout at target period",
+        orbitBoxTitle: "Orbit &amp; Radial Velocity",
+        targetPeriodLabel: "Target period",
+        targetSemiMajorLabel: "Semi-major axis",
+        targetPlanetMassLabel: "Input planet mass",
+        targetTeqLabel: "T<sub>eq</sub>",
+        targetHzLabel: "HZ membership",
+        targetKLabel: "RV semi-amplitude K",
+        targetPrvLabel: "pRV precision σ<sub>inst</sub>",
+        targetJitterLabel: "Stellar jitter σ<sub>jitter</sub>",
+        targetSnrLabel: "K / pRV",
+        targetDetectabilityLabel: "Detectability",
+        targetMinDetectableLabel: "Min. detectable mass",
+        targetNrvLabel: "N<sub>RV</sub> for mass precision",
+        transitBoxTitle: "Transit &amp; Atmosphere",
+        targetTransitDepthLabel: "Transit depth",
+        targetLoggLabel: "Planetary log(g) [cgs]",
+        targetScaleHeightLabel: "Scale height",
+        targetAtmSignalLabel: "Atm. transit signal",
+        astroBoxTitle: "Astrometry &amp; Imaging",
+        targetAstroLabel: "Astrometric α<sub>*</sub>",
+        targetSeparationLabel: "Orbital separation",
+        targetReflectedLabel: "Reflected (panchromatic)",
+        targetThermal1Label: "Thermal 1 µm",
+        targetThermal5Label: "Thermal 5 µm",
+        targetThermal10Label: "Thermal 10 µm",
+        targetThermal25Label: "Thermal 25 µm",
+        methodsTitle: "Methods and references",
+        unitEarth: "Earth",
+        unitNeptune: "Neptune",
+        unitJupiter: "Jupiter",
+        periodShortDays: "d",
+        periodShortYears: "y",
+        daysLong: "days",
+        yearsLong: "years",
+        albedoReadout: "A = {value}",
+        redisFull: "Full redistribution (ε = {value})",
+        redisDayside: "Dayside-only re-radiation (ε = {value})",
+        redisIntermediate: "Intermediate redistribution (ε = {value})",
+        lookupLoading: "Resolving and fetching stellar parameters for {target}...",
+        lookupSuccess: "Using SIMBAD/Gaia data for {name}.",
+        lookupPartial: "Resolved {name}. Some stellar quantities were unavailable, so manual or main-sequence fallback values remain in use.",
+        lookupFailed: "Star lookup failed: {message}",
+        lookupNetworkError: "network or browser access to remote catalog services failed",
+        stellarSourceDefault: "Sources: custom/manual values and main-sequence fallback relations.",
+        stellarSourceSummary: "Sources - parallax: {parallax}; mass: {mass}; radius: {radius}; Teff: {teff}; luminosity: {luminosity}.",
+        sourceGaiaAstrometry: "Gaia DR3 astrometry (VizieR mirror)",
+        sourceSimbadParallax: "SIMBAD parallax",
+        sourceGaiaFlameMass: "Gaia FLAME mass",
+        sourceGaiaFlameRadius: "Gaia FLAME radius",
+        sourceGaiaGspphotTeff: "Gaia GSP-Phot Teff",
+        sourceGaiaFlameLuminosity: "Gaia FLAME luminosity",
+        sourceFallbackMKsMass: "M dwarf fallback from M_Ks",
+        sourceFallbackMKsRadius: "M dwarf fallback from M_Ks",
+        sourceFallbackBpRpTeff: "M dwarf fallback from BP-RP",
+        sourceFallbackAfgkSequence: "AFGK empirical dwarf sequence",
+        sourceDerivedStefanBoltzmann: "derived from radius and Teff",
+        sourceMainSequenceMass: "manual input / spectral preset",
+        sourceMainSequenceRadius: "main-sequence mass-radius relation",
+        sourceMainSequenceTeff: "derived from mass-based luminosity and radius",
+        sourceMainSequenceLuminosity: "main-sequence mass-luminosity relation",
+        periodRangeError: "Period range error: Pmin must be strictly smaller than Pmax.",
+        hzMembershipOutside: "Outside optimistic HZ",
+        hzMembershipConservative: "Inside conservative HZ",
+        hzMembershipOptimistic: "Inside optimistic HZ only",
+        detectableYes: "Detectable (K >= pRV)",
+        detectableNo: "Not detectable (K < pRV)",
+        noDistance: "N/A (no distance)",
+        largeSignalNote: " - large signal, readily detected",
+        impossibleNote: " - basically impossible to detect",
+        nrvObservations: "{count} observations{note}",
+        nrvNotAvailable: "K = 0, N/A",
+        teffWarning: "Warning: Teff is outside nominal Kopparapu calibration range (2600-7200 K).",
+        plotKTitle: "RV Semi-Amplitude vs Orbital Period",
+        plotMassTitle: "Required Planet Mass vs Orbital Period",
+        plotTeqTitle: "Equilibrium Temperature vs Orbital Period",
+        plotXTitle: "Orbital period ({unit})",
+        plotMassAxisTitle: "Planet mass (× {unit})",
+        plotKTrace: "RV semi-amplitude K for input mass ({unit})",
+        plotPrvTrace: "pRV precision = {value} m/s",
+        plotJitterTrace: "Stellar jitter = {value} m/s",
+        plotTargetK: "K at target period",
+        plotTargetPrv: "pRV at target period",
+        plotUndetectable: "Undetectable region (K < target)",
+        plotConsHz: "Conservative HZ",
+        plotMassTrace: "Minimum detectable mass for pRV precision ({unit})",
+        plotActivityTrace: "Activity-correction threshold ({unit})",
+        plotInputMassTrace: "Input planet mass = {value} {unit}",
+        plotMassTarget: "Minimum detectable mass at target period",
+        plotInputMassTarget: "Input mass at target period",
+        plotActivityNote: "Below this dashed line, detections require activity correction",
+        plotTeqTrace: "Equilibrium temperature",
+        plotTeqTarget: "Teq at target period",
+        plotOptHz: "Optimistic HZ"
+      },
+      fr: {
+        documentTitle: "Estimateur képlérien et transit",
+        pageTitle: "Estimateur képlérien et transit",
+        pageSubtitle: "Outil rapide de planification en vitesse radiale de précision. Entrez les masses stellaire et planétaire, puis explorez la semi-amplitude réflexe stellaire <i>K</i> et la température d'équilibre en fonction de la période orbitale. <strong>Conçu pour le triage du suivi des exoplanètes.</strong>",
+        samplesTitle: "Systèmes exemples",
+        sampleEarth: "Terre + HARPS (0,7 m/s)",
+        stellarPropertiesTitle: "Propriétés stellaires",
+        starNameLabel: "Nom de l'étoile",
+        starNamePlaceholder: "p. ex. Proxima Cen",
+        lookupStarBtn: "Chercher l'étoile",
+        lookupIdle: "La recherche par nom utilise SIMBAD et Gaia DR3.",
+        mstarLabel: "Masse stellaire (<i>M</i><sub>sun</sub>)",
+        distanceLabel: "Distance (pc)",
+        parallaxLabel: "Parallaxe (mas)",
+        stellarTypeLabel: "Type spectral stellaire",
+        stellarTypeCustomLabel: "Personnalisé",
+        planetPropertiesTitle: "Propriétés planétaires",
+        planetMassUnitLabel: "Unité de masse planétaire",
+        planetUnitEarthLabel: "Terre",
+        planetUnitNeptuneLabel: "Neptune",
+        planetUnitJupiterLabel: "Jupiter",
+        planetMassValueLabel: "Valeur de la masse planétaire",
+        albedoLabel: "Albédo de Bond <i>A</i>",
+        redistributionLabel: "Efficacité de redistribution thermique ε",
+        rvAssumptionsTitle: "Hypothèses RV",
+        prvPrecisionLabel: "Précision pRV / σ<sub>inst</sub> (m/s)",
+        stellarJitterLabel: "Gigue stellaire σ<sub>jitter</sub> (m/s)",
+        massPrecisionLabel: "Précision visée sur la masse (%)",
+        periodSamplingTitle: "Échantillonnage en période",
+        periodUnitLabel: "Unité de période",
+        periodUnitDaysLabel: "jours",
+        periodUnitYearsLabel: "années",
+        periodRangeLabel: "Période min / cible / max",
+        periodMinLabel: "Min",
+        periodTargetLabel: "Cible",
+        periodMaxLabel: "Max",
+        updateBtn: "Mettre à jour les courbes",
+        luminosityCardLabel: "Luminosité stellaire",
+        radiusCardLabel: "Rayon stellaire",
+        teffCardLabel: "<i>T</i><sub>eff</sub> stellaire",
+        hzConsCardLabel: "Période ZH conservatrice",
+        hzOptCardLabel: "Période ZH optimiste",
+        detailTitle: "Sortie détaillée à la période cible",
+        orbitBoxTitle: "Orbite et vitesse radiale",
+        targetPeriodLabel: "Période cible",
+        targetSemiMajorLabel: "Demi-grand axe",
+        targetPlanetMassLabel: "Masse planétaire entrée",
+        targetTeqLabel: "T<sub>eq</sub>",
+        targetHzLabel: "Appartenance à la ZH",
+        targetKLabel: "Semi-amplitude RV K",
+        targetPrvLabel: "Précision pRV σ<sub>inst</sub>",
+        targetJitterLabel: "Gigue stellaire σ<sub>jitter</sub>",
+        targetSnrLabel: "K / pRV",
+        targetDetectabilityLabel: "Détectabilité",
+        targetMinDetectableLabel: "Masse min. détectable",
+        targetNrvLabel: "N<sub>RV</sub> pour la précision sur la masse",
+        transitBoxTitle: "Transit et atmosphère",
+        targetTransitDepthLabel: "Profondeur du transit",
+        targetLoggLabel: "log(g) planétaire [cgs]",
+        targetScaleHeightLabel: "Hauteur d'échelle",
+        targetAtmSignalLabel: "Signal de transit atm.",
+        astroBoxTitle: "Astrométrie et imagerie",
+        targetAstroLabel: "α<sub>*</sub> astrométrique",
+        targetSeparationLabel: "Séparation orbitale",
+        targetReflectedLabel: "Réfléchi (panchromatique)",
+        targetThermal1Label: "Thermique 1 µm",
+        targetThermal5Label: "Thermique 5 µm",
+        targetThermal10Label: "Thermique 10 µm",
+        targetThermal25Label: "Thermique 25 µm",
+        methodsTitle: "Méthodes et références",
+        unitEarth: "Terre",
+        unitNeptune: "Neptune",
+        unitJupiter: "Jupiter",
+        periodShortDays: "j",
+        periodShortYears: "a",
+        daysLong: "jours",
+        yearsLong: "années",
+        albedoReadout: "A = {value}",
+        redisFull: "Redistribution complète (ε = {value})",
+        redisDayside: "Réémission côté jour seulement (ε = {value})",
+        redisIntermediate: "Redistribution intermédiaire (ε = {value})",
+        lookupLoading: "Résolution et récupération des paramètres stellaires pour {target}...",
+        lookupSuccess: "Données SIMBAD/Gaia utilisées pour {name}.",
+        lookupPartial: "{name} a été résolue. Certaines quantités stellaires sont indisponibles; les valeurs manuelles ou de séquence principale restent utilisées.",
+        lookupFailed: "Échec de la recherche stellaire : {message}",
+        lookupNetworkError: "échec d'accès réseau ou blocage navigateur vers les services de catalogues distants",
+        stellarSourceDefault: "Sources : valeurs manuelles/personnalisées et relations de repli de séquence principale.",
+        stellarSourceSummary: "Sources - parallaxe : {parallax}; masse : {mass}; rayon : {radius}; Teff : {teff}; luminosité : {luminosity}.",
+        sourceGaiaAstrometry: "astrométrie Gaia DR3 (miroir VizieR)",
+        sourceSimbadParallax: "parallaxe SIMBAD",
+        sourceGaiaFlameMass: "masse Gaia FLAME",
+        sourceGaiaFlameRadius: "rayon Gaia FLAME",
+        sourceGaiaGspphotTeff: "Teff Gaia GSP-Phot",
+        sourceGaiaFlameLuminosity: "luminosité Gaia FLAME",
+        sourceFallbackMKsMass: "repli naine M à partir de M_Ks",
+        sourceFallbackMKsRadius: "repli naine M à partir de M_Ks",
+        sourceFallbackBpRpTeff: "repli naine M à partir de BP-RP",
+        sourceFallbackAfgkSequence: "séquence empirique de naines AFGK",
+        sourceDerivedStefanBoltzmann: "dérivée du rayon et de Teff",
+        sourceMainSequenceMass: "entrée manuelle / préréglage spectral",
+        sourceMainSequenceRadius: "relation masse-rayon de séquence principale",
+        sourceMainSequenceTeff: "dérivée de la luminosité et du rayon basés sur la masse",
+        sourceMainSequenceLuminosity: "relation masse-luminosité de séquence principale",
+        periodRangeError: "Erreur sur l'intervalle de période : Pmin doit être strictement inférieur à Pmax.",
+        hzMembershipOutside: "En dehors de la ZH optimiste",
+        hzMembershipConservative: "Dans la ZH conservatrice",
+        hzMembershipOptimistic: "Dans la ZH optimiste seulement",
+        detectableYes: "Détectable (K >= pRV)",
+        detectableNo: "Non détectable (K < pRV)",
+        noDistance: "N/A (pas de distance)",
+        largeSignalNote: " - grand signal, détection facile",
+        impossibleNote: " - détection pratiquement impossible",
+        nrvObservations: "{count} observations{note}",
+        nrvNotAvailable: "K = 0, N/A",
+        teffWarning: "Avertissement : Teff est hors du domaine nominal de calibration de Kopparapu (2600-7200 K).",
+        plotKTitle: "Semi-amplitude RV selon la période orbitale",
+        plotMassTitle: "Masse planétaire requise selon la période orbitale",
+        plotTeqTitle: "Température d'équilibre selon la période orbitale",
+        plotXTitle: "Période orbitale ({unit})",
+        plotMassAxisTitle: "Masse planétaire (× {unit})",
+        plotKTrace: "Semi-amplitude RV K pour la masse entrée ({unit})",
+        plotPrvTrace: "Précision pRV = {value} m/s",
+        plotJitterTrace: "Gigue stellaire = {value} m/s",
+        plotTargetK: "K à la période cible",
+        plotTargetPrv: "pRV à la période cible",
+        plotUndetectable: "Région indétectable (K < cible)",
+        plotConsHz: "ZH conservatrice",
+        plotMassTrace: "Masse minimale détectable pour la précision pRV ({unit})",
+        plotActivityTrace: "Seuil nécessitant une correction d'activité ({unit})",
+        plotInputMassTrace: "Masse planétaire entrée = {value} {unit}",
+        plotMassTarget: "Masse minimale détectable à la période cible",
+        plotInputMassTarget: "Masse entrée à la période cible",
+        plotActivityNote: "Sous cette ligne pointillée, la détection exige une correction de l'activité",
+        plotTeqTrace: "Température d'équilibre",
+        plotTeqTarget: "Teq à la période cible",
+        plotOptHz: "ZH optimiste"
+      }
+    };
+
+    let currentLanguage = detectInitialLanguage();
+    let fetchedStellar = null;
+    let distanceParallaxSyncLock = false;
+
+    MASS_UNITS.earth.labelKey = "unitEarth";
+    MASS_UNITS.neptune.labelKey = "unitNeptune";
+    MASS_UNITS.jupiter.labelKey = "unitJupiter";
+
+    function detectInitialLanguage() {
+      const saved = window.localStorage.getItem("keplerimator_lang");
+      if (saved === "fr" || saved === "en") return saved;
+      const browserLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+      return browserLang.startsWith("fr") ? "fr" : "en";
+    }
+
+    function tr(key, params = {}) {
+      const dict = I18N[currentLanguage] || I18N.en;
+      let value = dict[key] || I18N.en[key] || "";
+      for (const [name, replacement] of Object.entries(params)) {
+        value = value.replaceAll(`{${name}}`, String(replacement));
+      }
+      return value;
+    }
+
+    function setText(id, key) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = tr(key);
+    }
+
+    function setHtml(id, key) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = tr(key);
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = currentLanguage;
+      document.title = tr("documentTitle");
+
+      setText("pageTitle", "pageTitle");
+      setHtml("pageSubtitle", "pageSubtitle");
+      setText("samplesTitle", "samplesTitle");
+      document.getElementById("sampleEarth").textContent = tr("sampleEarth");
+      setText("stellarPropertiesTitle", "stellarPropertiesTitle");
+      setText("starNameLabel", "starNameLabel");
+      document.getElementById("starName").placeholder = tr("starNamePlaceholder");
+      setText("lookupStarBtn", "lookupStarBtn");
+      if (!document.getElementById("lookupStatus").dataset.state) {
+        document.getElementById("lookupStatus").textContent = tr("lookupIdle");
+      }
+      setHtml("mstarLabel", "mstarLabel");
+      setText("distanceLabel", "distanceLabel");
+      setText("parallaxLabel", "parallaxLabel");
+      setText("stellarTypeLabel", "stellarTypeLabel");
+      setText("stellarTypeCustomLabel", "stellarTypeCustomLabel");
+      setText("planetPropertiesTitle", "planetPropertiesTitle");
+      setText("planetMassUnitLabel", "planetMassUnitLabel");
+      setText("planetUnitEarthLabel", "planetUnitEarthLabel");
+      setText("planetUnitNeptuneLabel", "planetUnitNeptuneLabel");
+      setText("planetUnitJupiterLabel", "planetUnitJupiterLabel");
+      setText("planetMassValueLabel", "planetMassValueLabel");
+      setHtml("albedoLabel", "albedoLabel");
+      setText("redistributionLabel", "redistributionLabel");
+      setText("rvAssumptionsTitle", "rvAssumptionsTitle");
+      setHtml("prvPrecisionLabel", "prvPrecisionLabel");
+      setHtml("stellarJitterLabel", "stellarJitterLabel");
+      setText("massPrecisionLabel", "massPrecisionLabel");
+      setText("periodSamplingTitle", "periodSamplingTitle");
+      setText("periodUnitLabel", "periodUnitLabel");
+      setText("periodUnitDaysLabel", "periodUnitDaysLabel");
+      setText("periodUnitYearsLabel", "periodUnitYearsLabel");
+      setText("periodRangeLabel", "periodRangeLabel");
+      setText("periodMinLabel", "periodMinLabel");
+      setText("periodTargetLabel", "periodTargetLabel");
+      setText("periodMaxLabel", "periodMaxLabel");
+      setText("updateBtn", "updateBtn");
+      setText("luminosityCardLabel", "luminosityCardLabel");
+      setText("radiusCardLabel", "radiusCardLabel");
+      setHtml("teffCardLabel", "teffCardLabel");
+      setText("hzConsCardLabel", "hzConsCardLabel");
+      setText("hzOptCardLabel", "hzOptCardLabel");
+      setText("detailTitle", "detailTitle");
+      setHtml("orbitBoxTitle", "orbitBoxTitle");
+      setText("targetPeriodLabel", "targetPeriodLabel");
+      setText("targetSemiMajorLabel", "targetSemiMajorLabel");
+      setText("targetPlanetMassLabel", "targetPlanetMassLabel");
+      setHtml("targetTeqLabel", "targetTeqLabel");
+      setText("targetHzLabel", "targetHzLabel");
+      setText("targetKLabel", "targetKLabel");
+      setHtml("targetPrvLabel", "targetPrvLabel");
+      setHtml("targetJitterLabel", "targetJitterLabel");
+      setText("targetSnrLabel", "targetSnrLabel");
+      setText("targetDetectabilityLabel", "targetDetectabilityLabel");
+      setText("targetMinDetectableLabel", "targetMinDetectableLabel");
+      setHtml("targetNrvLabel", "targetNrvLabel");
+      setHtml("transitBoxTitle", "transitBoxTitle");
+      setText("targetTransitDepthLabel", "targetTransitDepthLabel");
+      setText("targetLoggLabel", "targetLoggLabel");
+      setText("targetScaleHeightLabel", "targetScaleHeightLabel");
+      setText("targetAtmSignalLabel", "targetAtmSignalLabel");
+      setHtml("astroBoxTitle", "astroBoxTitle");
+      setHtml("targetAstroLabel", "targetAstroLabel");
+      setText("targetSeparationLabel", "targetSeparationLabel");
+      setText("targetReflectedLabel", "targetReflectedLabel");
+      setText("targetThermal1Label", "targetThermal1Label");
+      setText("targetThermal5Label", "targetThermal5Label");
+      setText("targetThermal10Label", "targetThermal10Label");
+      setText("targetThermal25Label", "targetThermal25Label");
+      setText("methodsTitle", "methodsTitle");
+      updateStellarSourceNote(fetchedStellar);
+
+      document.getElementById("langEnBtn").classList.toggle("is-active", currentLanguage === "en");
+      document.getElementById("langFrBtn").classList.toggle("is-active", currentLanguage === "fr");
+
+      document.getElementById("albedoOut").textContent = tr("albedoReadout", { value: Number(document.getElementById("albedo").value).toFixed(2) });
+      document.getElementById("redisEffOut").textContent = redistributionLabel(Number(document.getElementById("redisEff").value));
+    }
+
+    function setLanguage(language) {
+      currentLanguage = language === "fr" ? "fr" : "en";
+      window.localStorage.setItem("keplerimator_lang", currentLanguage);
+      applyLanguage();
+      update();
+    }
+
+    function getUnitLabel(unit) {
+      return tr(unit.labelKey || "unitEarth");
+    }
+
+    function updateStellarSourceNote(stellar) {
+      const el = document.getElementById("stellarSourceNote");
+      if (!stellar) {
+        el.textContent = tr("stellarSourceDefault");
+        return;
+      }
+      el.textContent = tr("stellarSourceSummary", {
+        parallax: tr(stellar.parallaxSource || "sourceSimbadParallax"),
+        mass: tr(stellar.massSource || "sourceMainSequenceMass"),
+        radius: tr(stellar.radiusSource || "sourceMainSequenceRadius"),
+        teff: tr(stellar.teffSource || "sourceMainSequenceTeff"),
+        luminosity: tr(stellar.luminositySource || "sourceMainSequenceLuminosity")
+      });
+    }
+
+    function setLookupStatus(message, level = "", persist = true) {
+      const el = document.getElementById("lookupStatus");
+      el.textContent = message;
+      el.dataset.state = persist ? "set" : "";
+      el.classList.toggle("is-error", level === "error");
+      el.classList.toggle("is-ok", level === "ok");
+    }
+
+    function getLookupCacheKey(target) {
+      return `${LOOKUP_CACHE_PREFIX}${target.trim().toLowerCase()}`;
+    }
+
+    function loadLookupCache(target) {
+      try {
+        const raw = window.localStorage.getItem(getLookupCacheKey(target));
+        if (!raw) return null;
+        const payload = JSON.parse(raw);
+        if (!payload || !payload.ts || !payload.data) return null;
+        if (Date.now() - payload.ts > LOOKUP_CACHE_MAX_AGE_MS) {
+          window.localStorage.removeItem(getLookupCacheKey(target));
+          return null;
+        }
+        return payload.data;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveLookupCache(target, data) {
+      window.localStorage.setItem(getLookupCacheKey(target), JSON.stringify({ ts: Date.now(), data }));
+    }
+
+    function escapeAdqlString(value) {
+      return String(value).replaceAll("'", "''");
+    }
+
+    function parseTapRows(payload) {
+      const columns = Array.isArray(payload?.metadata) ? payload.metadata.map((entry) => entry.name) : [];
+      const rows = Array.isArray(payload?.data) ? payload.data : [];
+      return rows.map((row) => Object.fromEntries(columns.map((name, index) => [name, row[index]])));
+    }
+
+    function angularSeparationArcsec(ra1Deg, dec1Deg, ra2Deg, dec2Deg) {
+      const ra1 = ra1Deg * Math.PI / 180;
+      const dec1 = dec1Deg * Math.PI / 180;
+      const ra2 = ra2Deg * Math.PI / 180;
+      const dec2 = dec2Deg * Math.PI / 180;
+      const cosSep = Math.sin(dec1) * Math.sin(dec2)
+        + Math.cos(dec1) * Math.cos(dec2) * Math.cos(ra1 - ra2);
+      return Math.acos(Math.max(-1, Math.min(1, cosSep))) * 180 / Math.PI * 3600;
+    }
+
+    function computeAbsoluteMagnitude(apparentMag, parallaxMas) {
+      if (!Number.isFinite(apparentMag) || !Number.isFinite(parallaxMas) || parallaxMas <= 0) return null;
+      const distancePc = 1000 / parallaxMas;
+      return apparentMag - 5 * Math.log10(distancePc) + 5;
+    }
+
+    function inferSpectralFamily(spType) {
+      const value = String(spType || "").trim().toUpperCase();
+      const family = value.slice(0, 1);
+      return ["A", "F", "G", "K", "M"].includes(family) ? family : null;
+    }
+
+    function classifyLuminosityClass(spType) {
+      const text = String(spType || "").toUpperCase().replaceAll(" ", "");
+      if (!text) return null;
+      if (["VII", "VI"].some((token) => text.includes(token))) return "non-main-sequence";
+      if (["IV", "III", "II", "IB", "IA", "IAB", "I"].some((token) => text.includes(token))) {
+        return text.includes("V") && !text.includes("IV") ? "dwarf" : "non-main-sequence";
+      }
+      if (text.includes("V")) return "dwarf";
+      return null;
+    }
+
+    function inferMdwarfMassSunFromMKs(mKs) {
+      if (!Number.isFinite(mKs)) return null;
+      const mass = 0.5858 + 0.3872 * mKs - 0.1217 * (mKs ** 2)
+        + 0.0106 * (mKs ** 3) - 2.7262e-4 * (mKs ** 4);
+      return mass > 0 ? mass : null;
+    }
+
+    function inferMdwarfRadiusSunFromMKs(mKs) {
+      if (!Number.isFinite(mKs)) return null;
+      const radius = 1.9515 - 0.3520 * mKs + 0.01680 * (mKs ** 2);
+      return radius > 0 ? radius : null;
+    }
+
+    function inferMdwarfTeffFromBpRp(bpMag, rpMag) {
+      if (!Number.isFinite(bpMag) || !Number.isFinite(rpMag)) return null;
+      const color = bpMag - rpMag;
+      if (color < 1.5 || color > 4.5) return null;
+      const a = 3.245;
+      const b = -2.4309;
+      const c = 1.043;
+      const d = -0.2127;
+      const e = 0.01649;
+      return 3500 * (a + b * color + c * (color ** 2) + d * (color ** 3) + e * (color ** 4));
+    }
+
+    function inferAfgkParameters(gMag, bpMag, rpMag, parallaxMas, spType) {
+      const bpRp = Number.isFinite(bpMag) && Number.isFinite(rpMag) ? bpMag - rpMag : null;
+      const mG = computeAbsoluteMagnitude(gMag, parallaxMas);
+      const family = inferSpectralFamily(spType);
+      const luminosityClass = classifyLuminosityClass(spType);
+      if (!Number.isFinite(bpRp) || !Number.isFinite(mG)) return null;
+      if (bpRp < FGK_BP_RP_MIN || bpRp > FGK_BP_RP_MAX || mG < FGK_M_G_MIN || mG > FGK_M_G_MAX) return null;
+      if (family === "M") return null;
+      if (luminosityClass === "non-main-sequence") return null;
+
+      let best = null;
+      let second = null;
+      for (const row of AFGK_EMPIRICAL_SEQUENCE) {
+        const dBpRp = Math.abs(bpRp - row.bp_rp);
+        const dMg = Math.abs(mG - row.m_g);
+        const score = (dBpRp / AFGK_SEQ_BP_RP_TOL) ** 2 + (dMg / AFGK_SEQ_MG_TOL) ** 2;
+        const candidate = { ...row, score };
+        if (!best || candidate.score < best.score) {
+          second = best;
+          best = candidate;
+        } else if (!second || candidate.score < second.score) {
+          second = candidate;
+        }
+      }
+
+      if (!best) return null;
+      if (Math.abs(bpRp - best.bp_rp) > 0.5 || Math.abs(mG - best.m_g) > 2.0) return null;
+
+      if (!second || second.score === best.score) {
+        return { massSun: best.mass, radiusSun: best.radius, teffK: best.teff };
+      }
+
+      const w1 = 1 / Math.max(best.score, 1e-6);
+      const w2 = 1 / Math.max(second.score, 1e-6);
+      const norm = w1 + w2;
+      return {
+        massSun: (best.mass * w1 + second.mass * w2) / norm,
+        radiusSun: (best.radius * w1 + second.radius * w2) / norm,
+        teffK: (best.teff * w1 + second.teff * w2) / norm
+      };
+    }
+
+    function extractGaiaSourceId(identifier) {
+      const value = String(identifier || "").trim();
+      for (const prefix of ["Gaia DR3 ", "Gaia EDR3 ", "Gaia DR2 "]) {
+        if (value.startsWith(prefix)) {
+          const sourceId = value.slice(prefix.length).trim();
+          if (/^[0-9]+$/.test(sourceId)) return sourceId;
+        }
+      }
+      return null;
+    }
+
+    async function fetchIdentifiersForTarget(safeTarget) {
+      const adql = `SELECT i.id FROM ident i JOIN ident i0 ON i.oidref = i0.oidref WHERE i0.id = '${safeTarget}' AND (i.id LIKE 'Gaia DR3 %' OR i.id LIKE 'Gaia EDR3 %' OR i.id LIKE 'Gaia DR2 %')`;
+      const payload = await tapQuery(SIMBAD_TAP, adql);
+      return parseTapRows(payload).map((row) => row.id).filter(Boolean);
+    }
+
+    async function tapQuery(endpoint, query) {
+      const params = new URLSearchParams({
+        request: "doQuery",
+        lang: "adql",
+        format: "json",
+        query
+      });
+      const response = await fetch(`${endpoint}?${params.toString()}`, {
+        method: "GET"
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      try {
+        return await response.json();
+      } catch {
+        throw new Error(tr("lookupNetworkError"));
+      }
+    }
+
+    function getStellarContext(mStar) {
+      const fallback = {
+        lStar: lstarMainSequence(mStar),
+        rStar: rstarMainSequence(mStar),
+        teff: null,
+        source: "fallback"
+      };
+      fallback.teff = teffFromLR(fallback.lStar, fallback.rStar);
+      if (!fetchedStellar) return fallback;
+
+      let lStar = Number.isFinite(fetchedStellar.luminositySun) ? fetchedStellar.luminositySun : null;
+      let rStar = Number.isFinite(fetchedStellar.radiusSun) ? fetchedStellar.radiusSun : null;
+      let teff = Number.isFinite(fetchedStellar.teffK) ? fetchedStellar.teffK : null;
+
+      if (lStar == null && teff != null && rStar != null) {
+        lStar = (rStar ** 2) * ((teff / C.TSUN) ** 4);
+      }
+      if (teff == null && lStar != null && rStar != null && rStar > 0) {
+        teff = teffFromLR(lStar, rStar);
+      }
+      if (rStar == null && lStar != null && teff != null && teff > 0) {
+        rStar = Math.sqrt(lStar / ((teff / C.TSUN) ** 4));
+      }
+
+      return {
+        lStar: Number.isFinite(lStar) ? lStar : fallback.lStar,
+        rStar: Number.isFinite(rStar) ? rStar : fallback.rStar,
+        teff: Number.isFinite(teff) ? teff : fallback.teff,
+        source: "lookup"
+      };
+    }
+
+    async function fetchStarParameters(target) {
+      const cached = loadLookupCache(target);
+      if (cached) return cached;
+
+      const safeTarget = escapeAdqlString(target.trim());
+      const simbadQuery = `SELECT TOP 1 b.main_id, b.ra, b.dec, b.plx_value, b.sp_type, f.J, f.H, f.K FROM ident id JOIN basic b ON id.oidref = b.oid LEFT JOIN allfluxes f ON b.oid = f.oidref WHERE id.id = '${safeTarget}'`;
+      const simbadRows = parseTapRows(await tapQuery(SIMBAD_TAP, simbadQuery));
+      const simbad = simbadRows[0];
+      if (!simbad) {
+        throw new Error("target not resolved in SIMBAD");
+      }
+
+      let gaia = null;
+      const identifiers = await fetchIdentifiersForTarget(safeTarget);
+      const directGaiaId = identifiers.map(extractGaiaSourceId).find(Boolean);
+      if (directGaiaId) {
+        const gaiaDirectQuery = `SELECT TOP 1 Source, RA_ICRS, DE_ICRS, Plx, Gmag, BPmag, RPmag FROM "I/355/gaiadr3" WHERE Source = ${directGaiaId}`;
+        const gaiaDirectRows = parseTapRows(await tapQuery(VIZIER_TAP, gaiaDirectQuery));
+        gaia = gaiaDirectRows[0] || null;
+      }
+
+      if (!gaia) {
+        const radiusDeg = 5 / 3600;
+        const gaiaQuery = `SELECT TOP 20 Source, RA_ICRS, DE_ICRS, Plx, Gmag, BPmag, RPmag FROM "I/355/gaiadr3" WHERE 1 = CONTAINS(POINT('ICRS', RA_ICRS, DE_ICRS), CIRCLE('ICRS', ${Number(simbad.ra)}, ${Number(simbad.dec)}, ${radiusDeg}))`;
+        const gaiaRows = parseTapRows(await tapQuery(VIZIER_TAP, gaiaQuery));
+        for (const row of gaiaRows) {
+          const rowRa = Number(row.RA_ICRS);
+          const rowDec = Number(row.DE_ICRS);
+          if (!Number.isFinite(rowRa) || !Number.isFinite(rowDec)) continue;
+          const sepArcsec = angularSeparationArcsec(Number(simbad.ra), Number(simbad.dec), rowRa, rowDec);
+          if (gaia == null || sepArcsec < gaia.sepArcsec) {
+            gaia = { ...row, sepArcsec };
+          }
+        }
+      }
+
+      let astrophysical = null;
+      if (gaia?.Source != null) {
+        const astroQuery = `SELECT TOP 1 Source, Teff, "Rad-Flame", "Mass-Flame", "Lum-Flame" FROM "I/355/paramp" WHERE Source = ${gaia.Source}`;
+        const astroRows = parseTapRows(await tapQuery(VIZIER_TAP, astroQuery));
+        astrophysical = astroRows[0] || null;
+      }
+
+      const parallaxMas = Number(gaia?.Plx ?? simbad.plx_value);
+      const gMag = Number(gaia?.Gmag);
+      const kMag = Number(simbad?.K);
+      const bpMag = Number(gaia?.BPmag);
+      const rpMag = Number(gaia?.RPmag);
+      const mKs = computeAbsoluteMagnitude(kMag, parallaxMas);
+      const mG = computeAbsoluteMagnitude(gMag, parallaxMas);
+      const fallbackMassSun = inferMdwarfMassSunFromMKs(mKs);
+      const fallbackRadiusSun = inferMdwarfRadiusSunFromMKs(mKs);
+      const fallbackTeffK = inferMdwarfTeffFromBpRp(bpMag, rpMag);
+      const afgkFallback = inferAfgkParameters(gMag, bpMag, rpMag, parallaxMas, simbad.sp_type);
+      const family = inferSpectralFamily(simbad.sp_type);
+      const useAfgkFallback = family && family !== "M" && afgkFallback;
+      const result = {
+        target,
+        resolvedName: simbad.main_id,
+        spType: simbad.sp_type,
+        parallaxMas: Number.isFinite(parallaxMas) ? parallaxMas : null,
+        distancePc: Number.isFinite(parallaxMas) && parallaxMas > 0 ? 1000 / parallaxMas : null,
+        massSun: Number.isFinite(Number(astrophysical?.["Mass-Flame"])) ? Number(astrophysical["Mass-Flame"]) : (useAfgkFallback ? afgkFallback.massSun : fallbackMassSun),
+        radiusSun: Number.isFinite(Number(astrophysical?.["Rad-Flame"])) ? Number(astrophysical["Rad-Flame"]) : (useAfgkFallback ? afgkFallback.radiusSun : fallbackRadiusSun),
+        teffK: Number.isFinite(Number(astrophysical?.Teff)) ? Number(astrophysical.Teff) : (useAfgkFallback ? afgkFallback.teffK : fallbackTeffK),
+        luminositySun: Number.isFinite(Number(astrophysical?.["Lum-Flame"])) ? Number(astrophysical["Lum-Flame"]) : null,
+        parallaxSource: Number.isFinite(Number(gaia?.Plx)) ? "sourceGaiaAstrometry" : "sourceSimbadParallax",
+        massSource: Number.isFinite(Number(astrophysical?.["Mass-Flame"])) ? "sourceGaiaFlameMass" : (useAfgkFallback ? "sourceFallbackAfgkSequence" : (Number.isFinite(fallbackMassSun) ? "sourceFallbackMKsMass" : "sourceMainSequenceMass")),
+        radiusSource: Number.isFinite(Number(astrophysical?.["Rad-Flame"])) ? "sourceGaiaFlameRadius" : (useAfgkFallback ? "sourceFallbackAfgkSequence" : (Number.isFinite(fallbackRadiusSun) ? "sourceFallbackMKsRadius" : "sourceMainSequenceRadius")),
+        teffSource: Number.isFinite(Number(astrophysical?.Teff)) ? "sourceGaiaGspphotTeff" : (useAfgkFallback ? "sourceFallbackAfgkSequence" : (Number.isFinite(fallbackTeffK) ? "sourceFallbackBpRpTeff" : "sourceMainSequenceTeff")),
+        luminositySource: Number.isFinite(Number(astrophysical?.["Lum-Flame"])) ? "sourceGaiaFlameLuminosity" : "sourceDerivedStefanBoltzmann",
+        gMag: Number.isFinite(gMag) ? gMag : null,
+        kMag: Number.isFinite(kMag) ? kMag : null,
+        bpMag: Number.isFinite(bpMag) ? bpMag : null,
+        rpMag: Number.isFinite(rpMag) ? rpMag : null,
+        mG: Number.isFinite(mG) ? mG : null,
+        mKs: Number.isFinite(mKs) ? mKs : null
+      };
+      saveLookupCache(target, result);
+      return result;
+    }
+
+    async function lookupStar() {
+      const target = document.getElementById("starName").value.trim();
+      if (!target) {
+        setLookupStatus(tr("lookupIdle"), "", false);
+        return;
+      }
+
+      setLookupStatus(tr("lookupLoading", { target }));
+      try {
+        const result = await fetchStarParameters(target);
+        fetchedStellar = result;
+        updateStellarSourceNote(result);
+        setRadioValue("stellarType", "custom");
+        if (Number.isFinite(result.massSun) && result.massSun > 0) {
+          document.getElementById("mstar").value = result.massSun.toFixed(3);
+        }
+        if (Number.isFinite(result.parallaxMas) && result.parallaxMas > 0) {
+          distanceParallaxSyncLock = true;
+          document.getElementById("parallaxMas").value = result.parallaxMas.toFixed(2);
+          if (Number.isFinite(result.distancePc) && result.distancePc > 0) {
+            document.getElementById("distancePc").value = result.distancePc.toFixed(2);
+          }
+          distanceParallaxSyncLock = false;
+        }
+        const complete = Number.isFinite(result.massSun) && Number.isFinite(result.radiusSun) && Number.isFinite(result.teffK) && Number.isFinite(result.parallaxMas);
+        setLookupStatus(tr(complete ? "lookupSuccess" : "lookupPartial", { name: result.resolvedName || target }), complete ? "ok" : "", true);
+        update();
+      } catch (error) {
+        fetchedStellar = null;
+        const message = (error && (error.message === "Load failed" || error.message === "Failed to fetch"))
+          ? tr("lookupNetworkError")
+          : (error.message || String(error));
+        setLookupStatus(tr("lookupFailed", { message }), "error");
+      }
+    }
 
     function nRVObservations(K, sigmaInst, sigmaJitter, massPrecisionFrac) {
       // Cloutier et al. 2018 (AJ 156, 82), eq. 18 — white noise case
@@ -1033,9 +1916,10 @@
     }
 
     function redistributionLabel(redisEff) {
-      if (redisEff >= 0.95) return `Full redistribution (ε = ${redisEff.toFixed(2)})`;
-      if (redisEff <= 0.05) return `Dayside-only re-radiation (ε = ${redisEff.toFixed(2)})`;
-      return `Intermediate redistribution (ε = ${redisEff.toFixed(2)})`;
+      const value = redisEff.toFixed(2);
+      if (redisEff >= 0.95) return tr("redisFull", { value });
+      if (redisEff <= 0.05) return tr("redisDayside", { value });
+      return tr("redisIntermediate", { value });
     }
 
     function equilibriumTemperature(lStar, albedo, aAu, redisEff) {
@@ -1119,6 +2003,7 @@
       const mPlanetInput = Number(document.getElementById("mplanet").value);
       const unitKey = document.querySelector("input[name='mplanetUnit']:checked")?.value || "earth";
       const unit = MASS_UNITS[unitKey] || MASS_UNITS.earth;
+      const unitLabel = getUnitLabel(unit);
       const kTarget = Number(document.getElementById("kinput").value);
       const albedo = Number(document.getElementById("albedo").value);
       const periodUnit = document.querySelector("input[name='punit']:checked")?.value || "days";
@@ -1136,7 +2021,7 @@
       const pTarget = periodUnit === "years" ? pTargetInput * C.YEAR : pTargetInput;
 
       if (pMin >= pMax) {
-        warn.textContent = "Period range error: Pmin must be strictly smaller than Pmax.";
+        warn.textContent = tr("periodRangeError");
         return;
       }
 
@@ -1157,16 +2042,18 @@
       }
 
       document.getElementById("redisEffOut").textContent = redistributionLabel(redisEff);
-      document.getElementById("albedoOut").textContent = `A = ${albedo.toFixed(2)}`;
+      document.getElementById("albedoOut").textContent = tr("albedoReadout", { value: albedo.toFixed(2) });
 
       warn.textContent = "";
 
       const periods = logspace(adjPMin, adjPMax, 320);
       const xTicks = buildLogTicks(adjPMin, adjPMax, periodUnit);
 
-      const lStar = lstarMainSequence(mStar);
-      const rStar = rstarMainSequence(mStar);
-      const teff = teffFromLR(lStar, rStar);
+      const stellar = getStellarContext(mStar);
+      updateStellarSourceNote(fetchedStellar);
+      const lStar = stellar.lStar;
+      const rStar = stellar.rStar;
+      const teff = stellar.teff;
       const hz = hzBoundsPeriods(mStar, lStar, teff);
       const sigmaJitter = parseFloat(document.getElementById("sigmaJitter").value) || 0;
 
@@ -1249,52 +2136,52 @@
               solidity: 0.25
             },
             line: { width: 0, color: "rgba(0,0,0,0)" },
-            name: "Undetectable region (K < target)",
+            name: tr("plotUndetectable"),
             hoverinfo: "skip"
           },
           {
             x: periods,
             y: kCurve,
             mode: "lines",
-            name: `RV semi-amplitude K for input mass (${unit.label})`,
+            name: tr("plotKTrace", { unit: unitLabel }),
             line: { width: 3, color: "#2f6d5b" }
           },
           {
             x: periods,
             y: Array(periods.length).fill(kTarget),
             mode: "lines",
-            name: `pRV precision = ${kTarget.toFixed(2)} m/s`,
+            name: tr("plotPrvTrace", { value: kTarget.toFixed(2) }),
             line: { width: 1.5, dash: "dot", color: "#7e4e2a" }
           },
           {
             x: periods,
             y: Array(periods.length).fill(sigmaJitter),
             mode: "lines",
-            name: `Stellar jitter = ${sigmaJitter.toFixed(2)} m/s`,
+            name: tr("plotJitterTrace", { value: sigmaJitter.toFixed(2) }),
             line: { width: 1.5, dash: "dash", color: "#9b2c2c" }
           },
           {
             x: targetInRange ? [pTarget] : [],
             y: targetInRange ? [kAtTarget] : [],
             mode: "markers",
-            name: "K at target period",
+            name: tr("plotTargetK"),
             marker: { size: 14, color: "#2f6d5b", line: { color: "#ffffff", width: 2 } }
           },
           {
             x: targetInRange ? [pTarget] : [],
             y: targetInRange ? [kTarget] : [],
             mode: "markers",
-            name: "pRV at target period",
+            name: tr("plotTargetPrv"),
             marker: { size: 12, color: "#7e4e2a", line: { color: "#ffffff", width: 2 } }
           }
         ],
         {
           margin: { l: 70, r: 20, t: 48, b: 58 },
-          title: "RV Semi-Amplitude vs Orbital Period",
+          title: tr("plotKTitle"),
           paper_bgcolor: "rgba(0,0,0,0)",
           plot_bgcolor: "rgba(0,0,0,0)",
           xaxis: {
-            title: `Orbital period (${periodUnit})`,
+            title: tr("plotXTitle", { unit: tr(periodUnit === "years" ? "yearsLong" : "daysLong") }),
             type: "log",
             range: [Math.log10(adjPMin), Math.log10(adjPMax)],
             tickmode: "array",
@@ -1329,7 +2216,7 @@
               x: Math.sqrt(hz.consInnerP * hz.consOuterP),
               y: 1,
               yref: "paper",
-              text: "Conservative HZ",
+              text: tr("plotConsHz"),
               showarrow: false,
               yshift: -14,
               font: { size: 11, color: "#24513f" }
@@ -1346,45 +2233,45 @@
             x: periods,
             y: mFromKCurve,
             mode: "lines",
-            name: `Minimum detectable mass for pRV precision (${unit.label})`,
+            name: tr("plotMassTrace", { unit: unitLabel }),
             line: { width: 3, color: "#b96535" }
           },
           {
             x: periods,
             y: mFromActivityCurve,
             mode: "lines",
-            name: `Activity-correction threshold (${unit.label})`,
+            name: tr("plotActivityTrace", { unit: unitLabel }),
             line: { width: 1.5, dash: "dash", color: "#9b2c2c" }
           },
           {
             x: periods,
             y: Array(periods.length).fill(mPlanetInput),
             mode: "lines",
-            name: `Input planet mass = ${mPlanetInput.toFixed(3)} ${unit.label}`,
+            name: tr("plotInputMassTrace", { value: mPlanetInput.toFixed(3), unit: unitLabel }),
             line: { width: 1.5, dash: "dot", color: "#2f6d5b" }
           },
           {
             x: targetInRange ? [pTarget] : [],
             y: targetInRange ? [mReqAtTarget] : [],
             mode: "markers",
-            name: "Minimum detectable mass at target period",
+            name: tr("plotMassTarget"),
             marker: { size: 14, color: "#b96535", line: { color: "#ffffff", width: 2 } }
           },
           {
             x: targetInRange ? [pTarget] : [],
             y: targetInRange ? [mPlanetInput] : [],
             mode: "markers",
-            name: "Input mass at target period",
+            name: tr("plotInputMassTarget"),
             marker: { size: 12, color: "#2f6d5b", line: { color: "#ffffff", width: 2 } }
           }
         ],
         {
           margin: { l: 70, r: 20, t: 48, b: 58 },
-          title: "Required Planet Mass vs Orbital Period",
+          title: tr("plotMassTitle"),
           paper_bgcolor: "rgba(0,0,0,0)",
           plot_bgcolor: "rgba(0,0,0,0)",
           xaxis: {
-            title: `Orbital period (${periodUnit})`,
+            title: tr("plotXTitle", { unit: tr(periodUnit === "years" ? "yearsLong" : "daysLong") }),
             type: "log",
             range: [Math.log10(adjPMin), Math.log10(adjPMax)],
             tickmode: "array",
@@ -1394,7 +2281,7 @@
             gridcolor: "#e7deca"
           },
           yaxis: {
-            title: `Planet mass (&times; ${unit.label})`,
+            title: tr("plotMassAxisTitle", { unit: unitLabel }),
             type: "log",
             range: [Math.log10(mMin), Math.log10(mMax)],
             showgrid: true,
@@ -1416,7 +2303,7 @@
             {
               x: periods[Math.floor(periods.length * 0.58)],
               y: mFromActivityCurve[Math.floor(periods.length * 0.58)],
-              text: "Below this dashed line, detections require activity correction",
+              text: tr("plotActivityNote"),
               showarrow: false,
               yshift: -14,
               font: { size: 11, color: "#9b2c2c" },
@@ -1435,24 +2322,24 @@
             x: periods,
             y: teqCurve,
             mode: "lines",
-            name: "Equilibrium temperature",
+            name: tr("plotTeqTrace"),
             line: { width: 3, color: "#1f4f7a" }
           },
           {
             x: targetInRange ? [pTarget] : [],
             y: targetInRange ? [teqAtTarget] : [],
             mode: "markers",
-            name: "Teq at target period",
+            name: tr("plotTeqTarget"),
             marker: { size: 14, color: "#1f4f7a", line: { color: "#ffffff", width: 2 } }
           }
         ],
         {
           margin: { l: 70, r: 20, t: 48, b: 58 },
-          title: "Equilibrium Temperature vs Orbital Period",
+          title: tr("plotTeqTitle"),
           paper_bgcolor: "rgba(0,0,0,0)",
           plot_bgcolor: "rgba(0,0,0,0)",
           xaxis: {
-            title: `Orbital period (${periodUnit})`,
+            title: tr("plotXTitle", { unit: tr(periodUnit === "years" ? "yearsLong" : "daysLong") }),
             type: "log",
             range: [Math.log10(adjPMin), Math.log10(adjPMax)],
             tickmode: "array",
@@ -1484,7 +2371,7 @@
             {
               x: Math.sqrt(hz.optInnerP * hz.optOuterP),
               y: Math.max(...teqCurve) * 0.92,
-              text: "Optimistic HZ",
+              text: tr("plotOptHz"),
               showarrow: false,
               font: { size: 11, color: "#24513f" }
             }
@@ -1500,13 +2387,13 @@
       document.getElementById("hzOptOut").textContent = formatRange(hz.optInnerP, hz.optOuterP, "days", 1);
 
       const targetPeriodDisplay = periodUnit === "years" ? pTarget / C.YEAR : pTarget;
-      const targetPeriodUnitLabel = periodUnit === "years" ? "y" : "d";
+      const targetPeriodUnitLabel = tr(periodUnit === "years" ? "periodShortYears" : "periodShortDays");
       const detectable = kAtTarget >= kTarget;
-      let hzMembership = "Outside optimistic HZ";
+      let hzMembership = tr("hzMembershipOutside");
       if (pTarget >= hz.consInnerP && pTarget <= hz.consOuterP) {
-        hzMembership = "Inside conservative HZ";
+        hzMembership = tr("hzMembershipConservative");
       } else if (pTarget >= hz.optInnerP && pTarget <= hz.optOuterP) {
-        hzMembership = "Inside optimistic HZ only";
+        hzMembership = tr("hzMembershipOptimistic");
       }
 
       document.getElementById("targetPeriodOut").textContent = `${targetPeriodDisplay.toFixed(3)} ${targetPeriodUnitLabel}`;
@@ -1515,9 +2402,9 @@
       document.getElementById("targetPrvOut").textContent = `${kTarget.toFixed(2)} m/s`;
       document.getElementById("targetJitterOut").textContent = `${sigmaJitter.toFixed(2)} m/s`;
       document.getElementById("targetSnrOut").textContent = `${(kAtTarget / kTarget).toFixed(3)}`;
-      document.getElementById("targetDetOut").textContent = detectable ? "Detectable (K >= pRV)" : "Not detectable (K < pRV)";
-      document.getElementById("targetMdetOut").textContent = `${mReqAtTarget.toFixed(4)} x ${unit.label}`;
-      document.getElementById("targetMinOut").textContent = `${mPlanetInput.toFixed(4)} x ${unit.label}`;
+      document.getElementById("targetDetOut").textContent = detectable ? tr("detectableYes") : tr("detectableNo");
+      document.getElementById("targetMdetOut").textContent = `${mReqAtTarget.toFixed(4)} x ${unitLabel}`;
+      document.getElementById("targetMinOut").textContent = `${mPlanetInput.toFixed(4)} x ${unitLabel}`;
       document.getElementById("targetTeqOut").textContent = `${teqAtTarget.toFixed(0)} K`;
       document.getElementById("targetAstroOut").textContent = formatAstrometricSignal(astroMas);
       
@@ -1552,7 +2439,7 @@
         document.getElementById("targetSepMasOut").textContent =
           sepMas >= 1 ? `${formatSigFigs(sepMas, 3)} mas` : `${formatSigFigs(sepMas * 1000, 3)} µas`;
       } else {
-        document.getElementById("targetSepMasOut").textContent = "N/A (no distance)";
+        document.getElementById("targetSepMasOut").textContent = tr("noDistance");
       }
 
       // Contrast ratios
@@ -1571,19 +2458,28 @@
       const massPrecisionPct = parseFloat(document.getElementById("massPrecision").value) || 20;
       const nRVRaw = nRVObservations(kAtTarget, kTarget, sigmaJitter, massPrecisionPct / 100);
       const nRV = Math.max(10, nRVRaw);
-      const largeSignalNote = (isFinite(nRVRaw) && nRVRaw < 10) ? " — large signal, readily detected" : "";
-      const impossibleNote = (isFinite(nRVRaw) && nRVRaw > 1000) ? " — basically impossible to detect" : "";
+      const largeSignalNote = (isFinite(nRVRaw) && nRVRaw < 10) ? tr("largeSignalNote") : "";
+      const impossibleNote = (isFinite(nRVRaw) && nRVRaw > 1000) ? tr("impossibleNote") : "";
       document.getElementById("targetNrvOut").innerHTML =
-        isFinite(nRVRaw) ? `${nRV} observations${largeSignalNote}${impossibleNote}` : "K = 0, N/A";
+        isFinite(nRVRaw) ? tr("nrvObservations", { count: nRV, note: `${largeSignalNote}${impossibleNote}` }) : tr("nrvNotAvailable");
 
       if (teff < 2600 || teff > 7200) {
-        warn.textContent = "Warning: Teff is outside nominal Kopparapu calibration range (2600-7200 K).";
+        warn.textContent = tr("teffWarning");
       } else {
         warn.textContent = "";
       }
     }
 
     document.getElementById("updateBtn").addEventListener("click", update);
+    document.getElementById("lookupStarBtn").addEventListener("click", lookupStar);
+    document.getElementById("starName").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        lookupStar();
+      }
+    });
+    document.getElementById("langEnBtn").addEventListener("click", () => setLanguage("en"));
+    document.getElementById("langFrBtn").addEventListener("click", () => setLanguage("fr"));
     ["mplanet", "kinput", "sigmaJitter", "massPrecision", "pmin", "pmax", "ptarget", "distancePc", "parallaxMas"].forEach((id) => {
       const el = document.getElementById(id);
       el.addEventListener("change", update);
@@ -1593,7 +2489,7 @@
     ["albedo", "redisEff"].forEach((id) => {
       const el = document.getElementById(id);
       el.addEventListener("input", () => {
-        if (id === "albedo") document.getElementById("albedoOut").textContent = `A = ${Number(el.value).toFixed(2)}`;
+        if (id === "albedo") document.getElementById("albedoOut").textContent = tr("albedoReadout", { value: Number(el.value).toFixed(2) });
         if (id === "redisEff") document.getElementById("redisEffOut").textContent = redistributionLabel(Number(el.value));
       });
       el.addEventListener("change", update);
@@ -1608,6 +2504,12 @@
     document.querySelectorAll("input[name='stellarType']").forEach((radio) => {
       radio.addEventListener("change", (ev) => {
         const spectralType = ev.target.value;
+        if (spectralType !== "custom") {
+          fetchedStellar = null;
+          document.getElementById("starName").value = "";
+          document.getElementById("lookupStatus").dataset.state = "";
+          setLookupStatus(tr("lookupIdle"), "", false);
+        }
         if (spectralType !== "custom" && STELLAR_TYPE_MASSES[spectralType] !== undefined) {
           document.getElementById("mstar").value = STELLAR_TYPE_MASSES[spectralType].toFixed(2);
         }
@@ -1646,8 +2548,6 @@
       if (el) el.checked = true;
     }
 
-    let distanceParallaxSyncLock = false;
-
     function syncParallaxFromDistance() {
       if (distanceParallaxSyncLock) return;
       const d = Number(document.getElementById("distancePc").value);
@@ -1672,6 +2572,11 @@
     document.getElementById("parallaxMas").addEventListener("input", syncDistanceFromParallax);
 
     function applySample(sample) {
+      fetchedStellar = null;
+      document.getElementById("starName").value = sample.starName || "";
+      document.getElementById("lookupStatus").dataset.state = "";
+      setLookupStatus(tr("lookupIdle"), "", false);
+      updateStellarSourceNote(null);
       document.getElementById("mstar").value = sample.mstar;
       document.getElementById("mplanet").value = sample.mplanet;
       document.getElementById("kinput").value = sample.kinput;
@@ -1767,6 +2672,8 @@
       Plotly.Plots.resize(document.getElementById("plotTeq"));
       Plotly.Plots.resize(document.getElementById("plotMass"));
     });
+
+    applyLanguage();
 
     applySample({
       mstar: 0.122,
