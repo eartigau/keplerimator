@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Keplerian and Transit Guestimator</title>
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #f4f1e8;
@@ -28,11 +31,9 @@
       margin: 0;
       color: var(--ink);
       background:
-        radial-gradient(circle at 12% 14%, #eadfbf 0%, transparent 42%),
-        radial-gradient(circle at 88% 10%, #d3e7dd 0%, transparent 38%),
-        radial-gradient(circle at 60% 120%, #f4e6ce 0%, transparent 35%),
-        linear-gradient(160deg, #f6f2e8 0%, #eee6d3 100%);
-      font-family: "Avenir Next", "Helvetica Neue", Helvetica, sans-serif;
+        radial-gradient(1200px 600px at 8% 0%, #14325f 0%, #08111f 45%),
+        linear-gradient(160deg, #0a1424 0%, #111f36 100%);
+      font-family: "Space Grotesk", "Avenir Next", "Helvetica Neue", Helvetica, sans-serif;
       min-height: 100vh;
       position: relative;
     }
@@ -43,8 +44,8 @@
       inset: 0;
       pointer-events: none;
       background-image:
-        radial-gradient(circle, rgba(42, 74, 64, 0.14) 1.1px, transparent 1.2px),
-        radial-gradient(circle, rgba(132, 86, 54, 0.12) 0.9px, transparent 1px);
+        radial-gradient(circle, rgba(98, 194, 255, 0.1) 1.1px, transparent 1.2px),
+        radial-gradient(circle, rgba(132, 86, 54, 0.08) 0.9px, transparent 1px);
       background-size: 80px 80px, 120px 120px;
       background-position: 18px 24px, 56px 40px;
       opacity: 0.25;
