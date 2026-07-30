@@ -54,14 +54,52 @@
     .wrap {
       max-width: 1320px;
       margin: 0 auto;
-      padding: 28px 20px 48px;
+      padding: 20px 20px 48px;
     }
 
     .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
-      margin-bottom: 10px;
+      gap: 10px;
+      height: 49px;
+      padding: 0 20px;
+      background: rgba(8, 17, 31, .92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(200, 220, 255, 0.16);
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      min-height: calc(100vh - 49px);
+    }
+    .sidebar {
+      position: sticky;
+      top: 49px;
+      height: calc(100vh - 49px);
+      overflow-y: auto;
+      background: rgba(0, 0, 0, .15);
+      border-right: 1px solid rgba(200, 220, 255, 0.16);
+      padding: 1.6rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      color: #e8eef8;
+    }
+    .sidebar-logo { font-size: .95rem; font-weight: 700; margin-bottom: .15rem; color: #e8eef8; }
+    .sidebar-sub { font-size: .76rem; color: #a8b4ca; margin-bottom: .9rem; line-height: 1.4; }
+    .side-nav-link {
+      display: block; font-size: .83rem; color: #a8b4ca;
+      padding: .28rem .5rem; border-radius: 6px; text-decoration: none;
+    }
+    .side-nav-link:hover { background: rgba(255,255,255,.06); color: #e8eef8; }
+    @media (max-width: 760px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
     }
 
     .home-link {
@@ -626,16 +664,35 @@
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <div class="topbar">
-      <a href="https://eartigau.github.io/index_en.html" class="home-link home-link-en">← Home</a>
-      <a href="https://eartigau.github.io/index_fr.html" class="home-link home-link-fr">← Accueil</a>
-      <div class="lang-toggle" aria-label="Language selector">
-        <button class="lang-btn" id="langEnBtn" type="button" data-lang="en">EN</button>
-        <button class="lang-btn" id="langFrBtn" type="button" data-lang="fr">FR</button>
-      </div>
+  <div class="topbar">
+    <a href="https://github.com/eartigau/keplerimator" class="home-link" target="_blank">GitHub</a>
+    <a href="https://eartigau.github.io/index_en.html" class="home-link home-link-en">← Home</a>
+    <a href="https://eartigau.github.io/index_fr.html" class="home-link home-link-fr">← Accueil</a>
+    <div class="lang-toggle" aria-label="Language selector">
+      <button class="lang-btn" id="langEnBtn" type="button" data-lang="en">EN</button>
+      <button class="lang-btn" id="langFrBtn" type="button" data-lang="fr">FR</button>
     </div>
+  </div>
 
+  <div class="shell">
+    <nav class="sidebar" aria-label="Page navigation">
+      <div class="sidebar-logo">Keplerimator</div>
+      <div class="sidebar-sub">
+        <span class="home-link-en">RV &amp; transit guestimator</span>
+        <span class="home-link-fr">Estimateur RV &amp; transit</span>
+      </div>
+      <a class="side-nav-link" href="#inputs">
+        <span class="home-link-en">Inputs</span><span class="home-link-fr">Paramètres</span>
+      </a>
+      <a class="side-nav-link" href="#detail">
+        <span class="home-link-en">Detailed printout</span><span class="home-link-fr">Détails</span>
+      </a>
+      <a class="side-nav-link" href="#plotK">
+        <span class="home-link-en">Charts</span><span class="home-link-fr">Graphiques</span>
+      </a>
+    </nav>
+
+  <main class="wrap">
     <section class="hero" aria-label="Exoplanet mission header">
       <h1 id="pageTitle">Keplerian and Transit Guestimator</h1>
       <p class="subtitle" id="pageSubtitle">
@@ -653,7 +710,7 @@
       <button class="sample-btn" id="sampleLHS1140" type="button">LHS 1140 + SPIRou (3 m/s)</button>
     </section>
 
-    <section class="grid" aria-label="Inputs">
+    <section id="inputs" class="grid" aria-label="Inputs">
       <div class="input-group" aria-label="Stellar properties">
         <h2 id="stellarPropertiesTitle">Stellar properties</h2>
         <div class="field lookup-field">
@@ -774,7 +831,7 @@
     </section>
     <section class="provenance-note" id="stellarSourceNote">Sources: custom/manual values and main-sequence fallback relations.</section>
 
-    <section class="detail" aria-label="Detailed target-period printout">
+    <section id="detail" class="detail" aria-label="Detailed target-period printout">
       <h2 id="detailTitle">Detailed printout at target period</h2>
       <div class="detail-boxes">
 
@@ -867,6 +924,7 @@
       <br />13) <b>Orbital separation on sky</b>: &theta; = <i>a</i> (au) / <i>d</i> (pc) in arcsec, converted to mas.
     </section>
   </main>
+  </div>
 
   <script>
     const C = {
